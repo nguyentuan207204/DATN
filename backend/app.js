@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
 
 import pharmacyRoutes from "./routers/pharmacy.routes.js";
 import appointmentRoute from "./routers/appointment.route.js";
@@ -18,16 +23,26 @@ import performanceRoutes from "./routers/performance.routes.js";
 import prescriptionRoutes from "./routers/prescription.routes.js";
 import authRoutes from "./routers/auth.routes.js";
 import medicalServiceRoutes from "./routers/medicalService.routes.js";
+import newsRoutes from "./routers/news.routes.js";
+import adminRoutes from "./routers/admin.routes.js";
+import medicalRoutes from "./routers/medical.routes.js";
 
 // ==============================
 // TẢI ENV
 // ==============================
 dotenv.config();
 
+// Cấu hình Swagger
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const swaggerPath = path.join(__dirname, "../docs/openapi.json");
+const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
+
 // ==============================
 // KHỞI TẠO APP
 // ==============================
 const app = express();
+
 
 // ==============================
 // MIDDLEWARE TOÀN CỤC
@@ -39,6 +54,9 @@ app.use(cors());
 // Phân tích JSON body
 app.use(express.json());
 
+// Cấu hình phục vụ file tĩnh (ảnh upload)
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 // Bộ ghi nhật ký yêu cầu đơn giản
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
@@ -48,6 +66,9 @@ app.use((req, res, next) => {
 // ==============================
 // ĐỊNH TUYẾN
 // ==============================
+
+// Giao diện Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/pharmacy", pharmacyRoutes);
 app.use("/api/appointments", appointmentRoute);
@@ -65,6 +86,9 @@ app.use("/api/performance", performanceRoutes);
 app.use("/api/prescriptions", prescriptionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/medical-services", medicalServiceRoutes);
+app.use("/api/news", newsRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/medical", medicalRoutes);
 
 // ==============================
 // XỬ LÝ 404
