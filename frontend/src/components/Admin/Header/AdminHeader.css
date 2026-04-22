@@ -1,0 +1,122 @@
+.admin-header {
+  height: 80px;
+  background: #ffffff;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .admin-header {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .search-bar {
+    display: none;
+  }
+  .clinic-name {
+    font-size: 16px;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.search-bar {
+  position: relative;
+  width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  font-size: 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px 12px 48px;
+  background: #f7fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-bar input:focus {
+  border-color: #3182ce;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  color: #4a5568;
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: #f7fafc;
+  color: #3182ce;
+}
+
+/* .icon-btn .badge removed */
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #edf2f7;
+  margin: 0 8px;
+}
+
+/* .add-btn related styles removed */

@@ -1,0 +1,160 @@
+/* EMR Printing Styles - MoH Standard */
+
+.emr-print-container {
+    width: 210mm; /* A4 width */
+    min-height: 297mm; /* A4 height */
+    padding: 20mm;
+    margin: 0 auto;
+    background: white;
+    color: black;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 13pt;
+    line-height: 1.5;
+    box-sizing: border-box;
+    display: none; /* Hidden by default, shown in print mode or specific view */
+}
+
+/* Header */
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.clinic-info h3 { font-size: 14pt; margin: 0; font-weight: normal; }
+.clinic-info h4 { font-size: 14pt; margin: 5px 0; font-weight: bold; }
+.clinic-info p { font-size: 11pt; margin: 2px 0; }
+
+.sheet-id p { font-size: 11pt; margin: 2px 0; text-align: right; }
+
+/* Title */
+.sheet-title {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.sheet-title h1 {
+    font-size: 22pt;
+    font-weight: bold;
+    margin: 0;
+}
+
+.sheet-title p {
+    font-size: 13pt;
+    font-style: italic;
+    margin: 5px 0;
+}
+
+/* Patient info */
+.patient-section, .patient-summary {
+    margin-bottom: 20px;
+}
+
+.patient-section .row, .patient-summary .row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 5px;
+}
+
+/* Sections */
+.section-block {
+    margin-bottom: 15px;
+}
+
+.section-block h4 {
+    font-size: 13pt;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    text-decoration: underline;
+}
+
+.vitals-table {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+/* Table for Treatment Sheet */
+.treatment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.treatment-table th, .treatment-table td {
+    border: 1px solid black;
+    padding: 8px;
+    vertical-align: top;
+    font-size: 11pt;
+}
+
+.treatment-table th {
+    background: #f0f0f0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.center { text-align: center; }
+
+.order-block {
+    margin-bottom: 10px;
+}
+
+.doctor-sig {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Footer */
+.print-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+}
+
+.footer-col {
+    text-align: center;
+    width: 45%;
+}
+
+.signature-space {
+    margin: 40px 0 60px 0;
+    font-style: italic;
+    font-size: 10pt;
+}
+
+.doctor-name {
+    font-size: 14pt;
+}
+
+/* Print Overrides */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .emr-print-container, .emr-print-container * {
+        visibility: visible;
+        display: block !important;
+    }
+    .emr-print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Preview Mode (Optional class) */
+.emr-preview-mode {
+    display: block !important;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    margin: 40px auto;
+}

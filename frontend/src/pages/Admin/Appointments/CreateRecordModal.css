@@ -1,0 +1,168 @@
+.emr-modal {
+  max-width: 800px;
+  width: 95%;
+  background: white;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.emr-modal .modal-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f8fafc;
+  border-radius: 24px 24px 0 0;
+}
+
+.emr-modal .modal-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.subtitle strong {
+  color: #0D8ABC;
+}
+
+.emr-tabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 32px;
+  background: white;
+}
+
+.emr-tabs button {
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.emr-tabs button:hover {
+  color: #334155;
+  background: #f8fafc;
+}
+
+.emr-tabs button.active {
+  color: #0D8ABC;
+  border-bottom-color: #0D8ABC;
+}
+
+.emr-tabs button svg {
+  font-size: 18px;
+}
+
+.emr-content {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+  background: white;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 15px;
+  color: #0f172a;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #0D8ABC;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(13, 138, 188, 0.1);
+}
+
+.help-text {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 6px;
+  display: block;
+}
+
+/* Prescription Form */
+.prescription-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.prescription-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.select-med { flex: 4; }
+.select-qty { flex: 1; }
+.select-dosage { flex: 5; }
+
+.btn-add-med {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+}
+
+.emr-footer {
+  padding: 24px 32px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  background: #f8fafc;
+  border-radius: 0 0 24px 24px;
+}
+
+.emr-footer button {
+  min-width: 140px;
+}
