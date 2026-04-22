@@ -35,7 +35,7 @@ dotenv.config();
 // Cấu hình Swagger
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const swaggerPath = path.join(__dirname, "../docs/openapi.json");
+const swaggerPath = path.join(__dirname, "./docs/openapi.json");
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
 
 // ==============================
@@ -55,7 +55,7 @@ app.use(cors());
 app.use(express.json());
 
 // Cấu hình phục vụ file tĩnh (ảnh upload)
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 
 // Bộ ghi nhật ký yêu cầu đơn giản
 app.use((req, res, next) => {
