@@ -5,3 +5,10 @@ dist/
 build/
 .agent/scratch/
 *.log
+
+.agent/
+docs/
+GEMINI.md
+README.md
+.agents/
+skills-lock.json
