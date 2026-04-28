@@ -9,11 +9,12 @@
           "backend/prisma/**",
           "backend/docs/**",
           "backend/uploads/**",
-          "backend/routers/**",
+          "backend/routes/**",
           "backend/controllers/**",
           "backend/middleware/**",
           "backend/models/**",
-          "backend/services/**"
+          "backend/services/**",
+          "backend/config/**"
         ]
       }
     },
