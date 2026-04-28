@@ -7,25 +7,25 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 
-import pharmacyRoutes from "./routers/pharmacy.routes.js";
-import appointmentRoute from "./routers/appointment.route.js";
-import emrRoute from "./routers/emr.routes.js";
-import outpatientRoutes from "./routers/outpatient.routes.js";
-import inpatientRoutes from "./routers/inpatient.routes.js";
-import surgeryRoutes from "./routers/surgery.routes.js";
-import patientRoutes from "./routers/patient.routes.js";
-import billingRoutes from "./routers/billing.routes.js";
-import staffRoutes from "./routers/staff.routes.js";
-import departmentRoutes from "./routers/department.routes.js";
-import roleRoutes from "./routers/role.routes.js";
-import userRoutes from "./routers/user.routes.js";
-import performanceRoutes from "./routers/performance.routes.js";
-import prescriptionRoutes from "./routers/prescription.routes.js";
-import authRoutes from "./routers/auth.routes.js";
-import medicalServiceRoutes from "./routers/medicalService.routes.js";
-import newsRoutes from "./routers/news.routes.js";
-import adminRoutes from "./routers/admin.routes.js";
-import medicalRoutes from "./routers/medical.routes.js";
+import pharmacyRoutes from "./routes/pharmacy.routes.js";
+import appointmentRoute from "./routes/appointment.routes.js";
+import emrRoute from "./routes/emr.routes.js";
+import outpatientRoutes from "./routes/outpatient.routes.js";
+import inpatientRoutes from "./routes/inpatient.routes.js";
+import surgeryRoutes from "./routes/surgery.routes.js";
+import patientRoutes from "./routes/patient.routes.js";
+import billingRoutes from "./routes/billing.routes.js";
+import staffRoutes from "./routes/staff.routes.js";
+import departmentRoutes from "./routes/department.routes.js";
+import roleRoutes from "./routes/role.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import performanceRoutes from "./routes/performance.routes.js";
+import prescriptionRoutes from "./routes/prescription.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import medicalServiceRoutes from "./routes/medicalService.routes.js";
+import newsRoutes from "./routes/news.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import medicalRoutes from "./routes/medical.routes.js";
 
 // ==============================
 // TẢI ENV
