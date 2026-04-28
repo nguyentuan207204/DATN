@@ -1,0 +1,10 @@
+{
+  "name": "datn-monorepo",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "build:backend": "cd backend && npm install && npx prisma generate",
+    "build": "npm run build:frontend && npm run build:backend"
+  }
+}

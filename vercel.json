@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/app.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "backend/prisma/**",
+          "backend/docs/**",
+          "backend/uploads/**",
+          "backend/routers/**",
+          "backend/controllers/**",
+          "backend/middleware/**",
+          "backend/models/**",
+          "backend/services/**"
+        ]
+      }
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "backend/app.js"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "backend/uploads/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "frontend/$1"
+    }
+  ]
+}
