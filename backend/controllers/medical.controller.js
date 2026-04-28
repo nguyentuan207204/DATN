@@ -86,7 +86,7 @@ export const payInvoice = async (req, res, next) => {
 
         // Cập nhật trạng thái hóa đơn thành PAID
         const [result] = await pool.query(
-            "UPDATE Invoice SET status = 'PAID', updatedAt = NOW() WHERE id = ?",
+            "UPDATE Invoice SET status = 'PAID' WHERE id = ?",
             [id]
         );
 

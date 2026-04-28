@@ -9,7 +9,12 @@ const __dirname = path.dirname(__filename);
 // Cấu hình nơi lưu trữ và tên file
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '../uploads/appointments');
+        // Trên Vercel, chúng ta phải dùng thư mục /tmp để lưu tạm
+        const isVercel = process.env.VERCEL || process.env.NODE_ENV === 'production';
+        const uploadPath = isVercel 
+            ? '/tmp/uploads/appointments' 
+            : path.join(__dirname, '../uploads/appointments');
+            
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
         }

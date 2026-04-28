@@ -36,8 +36,12 @@
       "destination": "backend/uploads/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "frontend/$1"
+      "source": "/assets/(.*)",
+      "destination": "frontend/assets/$1"
+    },
+    {
+      "source": "/((?!api|uploads|assets).*)",
+      "destination": "frontend/index.html"
     }
   ]
 }
