@@ -26,6 +26,7 @@ import medicalServiceRoutes from "./routes/medicalService.routes.js";
 import newsRoutes from "./routes/news.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import medicalRoutes from "./routes/medical.routes.js";
+import emailRoutes from "./routes/email.routes.js";
 
 // ==============================
 // TẢI ENV
@@ -89,6 +90,7 @@ app.use("/api/medical-services", medicalServiceRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/medical", medicalRoutes);
+app.use("/api/email", emailRoutes);
 
 // ==============================
 // XỬ LÝ 404

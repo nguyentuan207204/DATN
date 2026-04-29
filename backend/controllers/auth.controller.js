@@ -12,6 +12,7 @@ import {
   updateRefreshToken,
   findUserByRefreshToken,
 } from "../services/user.service.js";
+import { sendOtpEmail, sendPasswordResetEmail } from "../services/email.service.js";
 
 
 
@@ -174,10 +175,27 @@ export const registerUnverified = async (req, res, next) => {
 
     const result = await createUnverifiedUser({ username, password, roleId, fullName, phone, email, gender, dob });
 
+    // Gửi OTP qua email nếu có địa chỉ email
+    if (email) {
+      try {
+        await sendOtpEmail(email, result.otpCode, fullName || username);
+      } catch (emailErr) {
+        // Không fail toàn bộ request nếu email lỗi — log để debug
+        console.error("[Auth] Gửi email OTP thất bại:", emailErr.message);
+      }
+    }
+
     return res.status(201).json({
       success: true,
-      message: "Đăng ký bước 1 thành công. Vui lòng xác thực OTP.",
-      data: { userId: result.userId, patientId: result.patientId, otp: result.otpCode },
+      message: email
+        ? "Đăng ký thành công. Mã OTP đã được gửi đến email của bạn."
+        : "Đăng ký bước 1 thành công. Vui lòng xác thực OTP.",
+      data: { 
+        userId: result.userId, 
+        patientId: result.patientId,
+        // Chỉ trả OTP trong môi trường dev để tiện test
+        ...(process.env.NODE_ENV !== "production" && { otp: result.otpCode })
+      },
     });
   } catch (error) {
     next(error);
