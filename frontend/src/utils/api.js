@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+let baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+// Sửa lỗi CORS do Vercel Redirect: 
+if (typeof window !== 'undefined' && baseURL.includes('vercel.app') && !window.location.hostname.includes('vercel.app')) {
+    baseURL = '/api';
+}
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+    baseURL: baseURL,
     headers: { 'Content-Type': 'application/json' },
 });
 
@@ -64,8 +71,9 @@ api.interceptors.response.use(
             }
 
             try {
-                // Gọi API cấp mới token
-                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/auth/refresh-token`, { refreshToken });
+                // Gọi API cấp mới token — dùng axios gốc với relative URL
+                // để tránh interceptor loop và hoạt động đúng cả local lẫn production
+                const response = await axios.post('/api/auth/refresh-token', { refreshToken });
                 const { accessToken, refreshToken: newRefreshToken } = response.data;
 
                 // Lưu token mới

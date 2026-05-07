@@ -19,6 +19,10 @@ const AppointmentDetailModal = ({ show, onClose, appointment }) => {
       const images = typeof imageUrls === 'string' ? JSON.parse(imageUrls) : imageUrls;
       if (!Array.isArray(images) || images.length === 0) return null;
       
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      // Remove /api from end if present for image URLs
+      const imageBase = apiBase.replace(/\/api$/, '');
+
       return (
         <div className="appt-detail-images">
           <p className="label-text">Ảnh đính kèm:</p>
@@ -26,12 +30,12 @@ const AppointmentDetailModal = ({ show, onClose, appointment }) => {
             {images.map((img, idx) => (
               <a 
                 key={idx} 
-                href={`http://localhost:3000${img}`} 
+                href={`${imageBase}${img}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="image-thumb"
               >
-                <img src={`http://localhost:3000${img}`} alt={`Attach ${idx + 1}`} />
+                <img src={`${imageBase}${img}`} alt={`Attach ${idx + 1}`} />
               </a>
             ))}
           </div>
