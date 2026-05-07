@@ -146,6 +146,35 @@ export const verifyUserOtp = async (username, otp) => {
   return { success: true };
 };
 
+export const setForgotOtp = async (userId, otpCode, expiresAt) => {
+  await pool.query(
+    `UPDATE User SET otp_code = ?, otp_expires_at = ? WHERE id = ?`,
+    [otpCode, expiresAt, userId]
+  );
+  return { success: true };
+};
+
+export const verifyResetOtp = async (username, otp) => {
+  const [users] = await pool.query(
+    `SELECT * FROM User WHERE username = ? AND otp_code = ? AND otp_expires_at > NOW()`,
+    [username, otp]
+  );
+
+  if (users.length === 0) {
+    return { success: false, message: "Mã xác thực không chính xác hoặc đã hết hạn" };
+  }
+
+  return { success: true, userId: users[0].id };
+};
+
+export const clearUserOtp = async (userId) => {
+  await pool.query(
+    `UPDATE User SET otp_code = NULL, otp_expires_at = NULL WHERE id = ?`,
+    [userId]
+  );
+  return { success: true };
+};
+
 export const findUserByUsername = async (username) => {
   const [rows] = await pool.query(
     `SELECT u.*, r.name AS roleName

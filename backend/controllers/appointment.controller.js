@@ -1,5 +1,7 @@
 import { createAppointment, getAdminAppointments, updateAppointmentStatus } from "../services/appointment.service.js";
 import { findUserById } from "../services/user.service.js";
+import { sendAppointmentConfirmationEmail } from "../services/email.service.js";
+import pool from "../config/db.js";
 
 // Helper để lấy patientId từ userId
 const getPatientId = async (userId) => {
@@ -65,9 +67,35 @@ export const registerAppointment = async (req, res, next) => {
             ...otherDetails
         });
 
+        // Gửi email xác nhận (bất đồng bộ — không block response)
+        setImmediate(async () => {
+            try {
+                // Lấy thông tin đầy đủ để gửi email
+                const user = await findUserById(req.user.id);
+                const [[doctor]] = await pool.query(
+                    "SELECT fullName FROM Staff WHERE id = ?", [doctorId]
+                );
+                const [[service]] = await pool.query(
+                    "SELECT name FROM Service WHERE id = ?", [serviceId]
+                );
+
+                if (user?.email) {
+                    await sendAppointmentConfirmationEmail(user.email, {
+                        patientName: user.fullName || user.username,
+                        doctorName: doctor?.fullName || "Bác sĩ",
+                        serviceName: service?.name || "Khám tổng quát",
+                        date,
+                        notes: otherDetails.notes || null,
+                    });
+                }
+            } catch (emailErr) {
+                console.error("[Appointment] Gửi email xác nhận thất bại:", emailErr.message);
+            }
+        });
+
         res.status(201).json({
             success: true,
-            message: "Đăng ký khám thành công",
+            message: "Dăng ký khám thành công",
             data: result
         });
     } catch (error) {
