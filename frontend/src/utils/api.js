@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+let baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+// Sửa lỗi CORS do Vercel Redirect: 
+if (typeof window !== 'undefined' && baseURL.includes('vercel.app') && !window.location.hostname.includes('vercel.app')) {
+    baseURL = '/api';
+}
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+    baseURL: baseURL,
     headers: { 'Content-Type': 'application/json' },
 });
 

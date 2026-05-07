@@ -11,6 +11,9 @@ import {
   getUserPasswordHashById,
   updateRefreshToken,
   findUserByRefreshToken,
+  setForgotOtp,
+  verifyResetOtp,
+  clearUserOtp,
 } from "../services/user.service.js";
 import { sendOtpEmail, sendPasswordResetEmail } from "../services/email.service.js";
 
@@ -126,16 +129,16 @@ export const login = async (req, res, next) => {
 
 export const forgotPassword = async (req, res, next) => {
   try {
-    const { username, newPassword } = req.body;
+    const { username } = req.body;
 
-    if (!username || !newPassword) {
+    if (!username) {
       return res.status(400).json({
         success: false,
-        message: "Thiếu username hoặc newPassword",
+        message: "Thiếu username",
       });
     }
 
-    const user = await findUserByUsername(username);
+    const user = await findUserById((await findUserByUsername(username))?.id);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -143,11 +146,65 @@ export const forgotPassword = async (req, res, next) => {
       });
     }
 
-    await updateUserPassword(user.id, newPassword);
+    if (!user.email) {
+      return res.status(400).json({
+        success: false,
+        message: "Tài khoản này chưa được liên kết email. Không thể khôi phục mật khẩu.",
+      });
+    }
+
+    // Tạo OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
+
+    await setForgotOtp(user.id, otpCode, otpExpiresAt);
+
+    // Gửi email
+    const emailResult = await sendOtpEmail(user.email, otpCode, user.fullName || user.username);
+    
+    if (!emailResult.success) {
+      console.warn("Failed to send Forgot Password OTP email.");
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống gửi email. Vui lòng thử lại sau.",
+      });
+    }
 
     return res.json({
       success: true,
-      message: "Cập nhật mật khẩu mới thành công",
+      message: "Mã xác thực đã được gửi đến email của bạn.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { username, otp, newPassword } = req.body;
+
+    if (!username || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu thông tin bắt buộc",
+      });
+    }
+
+    const verifyResult = await verifyResetOtp(username, otp);
+
+    if (!verifyResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: verifyResult.message,
+      });
+    }
+
+    await updateUserPassword(verifyResult.userId, newPassword);
+    await clearUserOtp(verifyResult.userId);
+
+    return res.json({
+      success: true,
+      message: "Mật khẩu của bạn đã được cập nhật thành công",
     });
   } catch (error) {
     next(error);

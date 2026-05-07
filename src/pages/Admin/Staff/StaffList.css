@@ -1,0 +1,165 @@
+.staff-management .header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.staff-management .btn-premium {
+  padding: 10px 18px;
+  height: fit-content;
+  align-self: center;
+  margin-right: 0;
+}
+
+.table-controls {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f1f5f9;
+  padding: 10px 16px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  color: #64748b;
+}
+
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #334155;
+}
+
+.btn-filter {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.staff-card {
+  padding: 24px;
+  text-align: center;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.status-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-indicator.online { color: #10b981; }
+.status-indicator.away { color: #f59e0b; }
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.staff-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  margin-bottom: 16px;
+  object-fit: cover;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.staff-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.staff-role-badge {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.info-item svg {
+  font-size: 16px;
+  color: #94a3b8;
+}
+
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-outline {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  border-color: #3182ce;
+  color: #3182ce;
+  background: #f0f9ff;
+}

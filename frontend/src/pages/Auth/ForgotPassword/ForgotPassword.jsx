@@ -52,7 +52,11 @@ const ForgotPassword = () => {
 
         try {
             setIsLoading(true);
-            const response = await api.post('/auth/reset-password', { token, newPassword });
+            const response = await api.post('/auth/reset-password', { 
+                username, 
+                otp: token, 
+                newPassword 
+            });
             if (response.data.success) {
                 toast.success('Mật khẩu của bạn đã được cập nhật thành công!');
                 setStep(3); // Success step

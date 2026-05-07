@@ -1,0 +1,104 @@
+.premium-pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #1e293b !important; /* Đổi sang nền tối để text trắng nổi bật */
+  border-radius: 0 0 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: -1px;
+  z-index: 10;
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selector-label {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.premium-pagination-container .premium-select {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+  padding: 6px 12px !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  width: auto !important;
+  min-width: unset !important;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-pagination-container .premium-select:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.premium-pagination-container .pagi-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px;
+  color: #fff !important;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1.3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.premium-pagination-container .pagi-btn.page-num {
+  font-size: 0.9rem;
+  font-weight: 700;
+  width: auto;
+  min-width: 38px;
+  padding: 0 10px;
+}
+
+.premium-pagination-container .pagi-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: #6366f1 !important;
+  color: white !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.premium-pagination-container .pagi-btn.active {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+}
+
+.premium-pagination-container .pagi-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+  .premium-pagination-container {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+}

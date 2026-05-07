@@ -1,5 +1,5 @@
 import express from "express";
-import { login, register, forgotPassword, registerUnverified, verifyOtp, getMe, updateMe, changePassword, refreshToken, resetAdminPassword } from "../controllers/auth.controller.js";
+import { login, register, forgotPassword, resetPassword, registerUnverified, verifyOtp, getMe, updateMe, changePassword, refreshToken, resetAdminPassword } from "../controllers/auth.controller.js";
 
 
 import { authenticate } from "../middleware/auth.middleware.js";
@@ -25,8 +25,11 @@ router.post("/login", login);
 // Làm mới token
 router.post("/refresh-token", refreshToken);
 
-// Quên mật khẩu (đặt lại mật khẩu mới)
+// Quên mật khẩu (Bước 1: gửi OTP)
 router.post("/forgot-password", forgotPassword);
+
+// Đặt lại mật khẩu (Bước 2: dùng OTP)
+router.post("/reset-password", resetPassword);
 
 // Lấy thông tin người dùng hiện tại
 router.get("/me", authenticate, getMe);
