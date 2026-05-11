@@ -240,8 +240,8 @@ export const getMedicalRecordDetail = async (recordId) => {
       s.fullName AS doctorName,
       dept.name AS departmentName
     FROM MedicalRecord mr
-    JOIN Patient p ON mr.patientId = p.id
-    JOIN Staff s ON mr.doctorId = s.id
+    LEFT JOIN Patient p ON mr.patientId = p.id
+    LEFT JOIN Staff s ON mr.doctorId = s.id
     LEFT JOIN Department dept ON s.departmentId = dept.id
     WHERE mr.id = ?
     `,

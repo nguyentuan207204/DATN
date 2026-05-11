@@ -193,12 +193,18 @@ export const updateUserPassword = async (userId, newPassword) => {
 };
 
 export const findUserById = async (userId) => {
+  if (!userId) return null;
   const [rows] = await pool.query(
     `SELECT u.id, u.username, u.roleId, r.name AS roleName, u.isLocked, u.createdAt,
-            p.id AS patientId, p.fullName, p.phone, p.email, p.gender, p.dateOfBirth, p.address
+            p.id AS patientId, 
+            COALESCE(p.fullName, s.fullName) AS fullName,
+            COALESCE(p.phone, s.phone) AS phone,
+            COALESCE(p.email, s.email) AS email,
+            p.gender, p.dateOfBirth, p.address
      FROM User u
      JOIN Role r ON u.roleId = r.id
      LEFT JOIN Patient p ON u.id = p.userId
+     LEFT JOIN Staff s ON u.id = s.userId
      WHERE u.id = ?`,
     [userId]
   );

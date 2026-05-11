@@ -1,0 +1,31 @@
+# Ignore node_modules everywhere
+node_modules
+**/node_modules
+
+# Ignore dev/temp files
+.DS_Store
+*.log
+
+# Ignore source maps in dist (already built)
+# Keep frontend/dist for static build
+
+# Ignore scratch and dev scripts
+backend/scratch
+backend/scripts
+backend/postman
+backend/test*.js
+backend/check_*.js
+backend/add_lock_column.js
+backend/init_department.js
+backend/verify_otp.js
+
+# Ignore duplicate files
+"frontend/.editorconfig 2"
+"frontend/.gitattributes 2"
+"frontend/index 2.html"
+"frontend/package 2.json"
+"frontend/package-lock 2.json"
+"frontend/vite.config 2.js"
+
+# Ignore agent configs
+.agent

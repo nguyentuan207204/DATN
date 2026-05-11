@@ -1,36 +1,41 @@
-import FormData from "form-data";
-import Mailgun from "mailgun.js";
+import { Resend } from "resend";
 
-// Initialize Mailgun client
-const mailgun = new Mailgun(FormData);
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAILGUN_API_KEY || "key-placeholder",
-  // EU region: uncomment if your domain is on EU
-  // url: "https://api.eu.mailgun.net",
-});
+// Initialize Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || "sandbox.mailgun.org";
-const FROM_EMAIL = process.env.MAILGUN_FROM || `Phòng Khám <noreply@${MAILGUN_DOMAIN}>`;
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ||
+  "Phòng Khám <no-reply@phongkhamdakhoabacninh.io.vn>";
 
 /**
- * Core function: send any email via Mailgun
+ * Core function: send any email via Resend
  * @param {object} options - { to, subject, html, text }
  */
 const sendEmail = async ({ to, subject, html, text }) => {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[Email] Critical: RESEND_API_KEY is not defined in environment variables.");
+    return { success: false, error: "Missing API Key" };
+  }
+  
   try {
-    const result = await mg.messages.create(MAILGUN_DOMAIN, {
+    const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
-      text: text || html.replace(/<[^>]+>/g, ""), // Strip HTML for plain text fallback
+      text: text || html.replace(/<[^>]+>/g, ""),
     });
-    console.log(`[Email] Sent to ${to} | ID: ${result.id}`);
-    return { success: true, id: result.id };
-  } catch (error) {
-    console.error("[Email] Failed:", error.message);
-    throw new Error(`Không thể gửi email: ${error.message}`);
+
+    if (error) {
+      console.error("[Email] Resend API error details:", JSON.stringify(error, null, 2));
+      return { success: false, error: error.message || "Resend service error" };
+    }
+
+    console.log(`[Email] Success | Sent to ${to} | ID: ${data?.id}`);
+    return { success: true, id: data?.id };
+  } catch (err) {
+    console.error("[Email] Exception during sendEmail:", err);
+    return { success: false, error: err.message || "Unknown internal error during email sending" };
   }
 };
 

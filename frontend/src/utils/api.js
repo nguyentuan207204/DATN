@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 }, (error) => {
-    return Promise.reject(error);
+    return Promise.reject(error || new Error('Request Interceptor Error'));
 });
 
 // Biến để kiểm soát quá trình refresh token
@@ -54,7 +54,7 @@ api.interceptors.response.use(
                     originalRequest.headers.Authorization = 'Bearer ' + token;
                     return api(originalRequest);
                 })
-                .catch(err => Promise.reject(err));
+                .catch(err => Promise.reject(err || new Error('Refresh Token Queue Error')));
             }
 
             originalRequest._retry = true;
@@ -67,7 +67,7 @@ api.interceptors.response.use(
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('user');
                 window.location.href = '/login?expired=true';
-                return Promise.reject(error);
+                return Promise.reject(error || new Error('No Refresh Token'));
             }
 
             try {
@@ -98,13 +98,13 @@ api.interceptors.response.use(
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('user');
                 window.location.href = '/login?expired=true';
-                return Promise.reject(err);
+                return Promise.reject(err || new Error('Refresh Token Failed'));
             } finally {
                 isRefreshing = false;
             }
         }
 
-        return Promise.reject(error);
+        return Promise.reject(error || new Error('API Response Error'));
     }
 );
 

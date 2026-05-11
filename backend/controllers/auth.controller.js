@@ -138,11 +138,19 @@ export const forgotPassword = async (req, res, next) => {
       });
     }
 
-    const user = await findUserById((await findUserByUsername(username))?.id);
+    const existingUser = await findUserByUsername(username);
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy tài khoản với username này",
+      });
+    }
+
+    const user = await findUserById(existingUser.id);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Không tìm thấy tài khoản",
+        message: "Không tìm thấy thông tin chi tiết tài khoản",
       });
     }
 
@@ -160,13 +168,15 @@ export const forgotPassword = async (req, res, next) => {
     await setForgotOtp(user.id, otpCode, otpExpiresAt);
 
     // Gửi email
+    console.log(`[Auth] Attempting to send OTP to ${user.email}`);
     const emailResult = await sendOtpEmail(user.email, otpCode, user.fullName || user.username);
     
     if (!emailResult.success) {
-      console.warn("Failed to send Forgot Password OTP email.");
+      console.error("[Auth] sendOtpEmail failed:", emailResult.error);
       return res.status(500).json({
         success: false,
         message: "Lỗi hệ thống gửi email. Vui lòng thử lại sau.",
+        error: process.env.NODE_ENV === 'development' ? emailResult.error : undefined
       });
     }
 
@@ -175,7 +185,13 @@ export const forgotPassword = async (req, res, next) => {
       message: "Mã xác thực đã được gửi đến email của bạn.",
     });
   } catch (error) {
-    next(error);
+    console.error("[Auth] forgotPassword Critical Error:", error);
+    // Đảm bảo luôn trả về JSON thay vì để server crash
+    return res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi hệ thống tại máy chủ.",
+      error: error.message
+    });
   }
 };
 

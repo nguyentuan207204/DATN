@@ -79,7 +79,7 @@ export const updateAppointmentStatus = async (id, status) => {
 
 export const cancelAppointment = async (id, patientId) => {
     const [result] = await pool.query(
-        "UPDATE Appointment SET status = 'CANCELLED' WHERE id = ? AND patientId = ? AND status = 'UPCOMING'",
+        "UPDATE Appointment SET status = 'CANCELLED' WHERE id = ? AND patientId = ? AND status IN ('PENDING', 'UPCOMING')",
         [id, patientId]
     );
     
