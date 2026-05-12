@@ -186,6 +186,18 @@ export const findUserByUsername = async (username) => {
   return rows[0];
 };
 
+export const findUserByEmail = async (email) => {
+  const [rows] = await pool.query(
+    `SELECT u.*, r.name AS roleName, p.email, p.fullName
+     FROM User u
+     JOIN Role r ON u.roleId = r.id
+     JOIN Patient p ON u.id = p.userId
+     WHERE p.email = ?`,
+    [email]
+  );
+  return rows[0];
+};
+
 export const updateUserPassword = async (userId, newPassword) => {
   const passwordHash = await bcrypt.hash(newPassword, 10);
   await pool.query(`UPDATE User SET passwordHash = ? WHERE id = ?`, [passwordHash, userId]);

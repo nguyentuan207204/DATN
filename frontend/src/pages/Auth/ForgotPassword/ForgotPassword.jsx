@@ -1,68 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUser, FaLock, FaKey, FaArrowLeft, FaCheckCircle, FaSpinner } from 'react-icons/fa';
+import { FaEnvelope, FaShieldAlt, FaArrowLeft, FaCheckCircle, FaSpinner, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import './ForgotPassword.css';
 
 const ForgotPassword = () => {
-    const [step, setStep] = useState(1); // 1: Info request, 2: Reset password
-    const [username, setUsername] = useState('');
-    const [token, setToken] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [step, setStep] = useState(1); // 1: Info request, 2: Success
+    const [email, setEmail] = useState('');
+    const [captchaInput, setCaptchaInput] = useState('');
+    const [captchaText, setCaptchaText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const canvasRef = useRef(null);
 
-    const handleRequestReset = async (e) => {
-        e.preventDefault();
-        if (!username) {
-            toast.warning('Vui lòng nhập Username hoặc Email');
-            return;
+    const generateCaptcha = () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        let text = '';
+        for (let i = 0; i < 5; i++) {
+            text += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setCaptchaText(text);
+        drawCaptcha(text);
+    };
+
+    const drawCaptcha = (text) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add noise dots
+        for (let i = 0; i < 50; i++) {
+            ctx.fillStyle = `rgba(${Math.random()*150},${Math.random()*150},${Math.random()*150}, 0.5)`;
+            ctx.beginPath();
+            ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, 0, Math.PI * 2);
+            ctx.fill();
         }
 
-        try {
-            setIsLoading(true);
-            const response = await api.post('/auth/forgot-password', { username });
-            if (response.data.success) {
-                toast.success(response.data.message);
-                // In a real app, token is sent via email. 
-                // For this demo/test, we might get it in response if backend returns it.
-                if (response.data.resetToken) {
-                    setToken(response.data.resetToken);
-                }
-                setStep(2);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Yêu cầu thất bại');
-        } finally {
-            setIsLoading(false);
+        // Draw text
+        ctx.font = 'bold 28px "Courier New", monospace';
+        ctx.fillStyle = '#1e293b';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        const angle = (Math.random() - 0.5) * 0.3;
+        ctx.rotate(angle);
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+
+        // Add noise lines
+        for (let i = 0; i < 4; i++) {
+            ctx.strokeStyle = `rgba(${Math.random()*150},${Math.random()*150},${Math.random()*150}, 0.5)`;
+            ctx.beginPath();
+            ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+            ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+            ctx.stroke();
         }
     };
 
-    const handleResetPassword = async (e) => {
+    useEffect(() => {
+        generateCaptcha();
+    }, []);
+
+    const handleRequestReset = async (e) => {
         e.preventDefault();
-        if (!token || !newPassword || !confirmPassword) {
-            toast.warning('Vui lòng điền đầy đủ thông tin');
+        if (!email) {
+            toast.warning('Vui lòng nhập Email của bạn');
             return;
         }
-        if (newPassword !== confirmPassword) {
-            toast.error('Mật khẩu xác nhận không khớp');
+        if (!captchaInput) {
+            toast.warning('Vui lòng nhập mã xác nhận (Captcha)');
+            return;
+        }
+        if (captchaInput.toLowerCase() !== captchaText.toLowerCase()) {
+            toast.error('Mã xác nhận không đúng. Vui lòng thử lại.');
+            generateCaptcha();
+            setCaptchaInput('');
             return;
         }
 
         try {
             setIsLoading(true);
-            const response = await api.post('/auth/reset-password', { 
-                username, 
-                otp: token, 
-                newPassword 
-            });
+            const response = await api.post('/auth/forgot-password', { email });
             if (response.data.success) {
-                toast.success('Mật khẩu của bạn đã được cập nhật thành công!');
-                setStep(3); // Success step
+                toast.success(response.data.message);
+                setStep(2); // Show success view
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Đổi mật khẩu thất bại');
+            toast.error(error.response?.data?.message || 'Yêu cầu thất bại. Vui lòng thử lại.');
+            generateCaptcha();
+            setCaptchaInput('');
         } finally {
             setIsLoading(false);
         }
@@ -74,82 +104,66 @@ const ForgotPassword = () => {
                 <div className="auth-header">
                     <Link to="/login" className="back-link"><FaArrowLeft /> Quay lại đăng nhập</Link>
                     <h1>Quên mật khẩu?</h1>
-                    <p>Hãy thực hiện các bước dưới đây để khôi phục quyền truy cập.</p>
+                    <p>Nhập email đã đăng ký của bạn. Chúng tôi sẽ tạo mật khẩu mới và gửi đến email này.</p>
                 </div>
 
                 {step === 1 && (
                     <form onSubmit={handleRequestReset} className="auth-form">
                         <div className="form-group">
-                            <label><FaUser /> Tên đăng nhập hoặc Email</label>
+                            <label><FaEnvelope /> Địa chỉ Email</label>
                             <div className="input-wrapper">
                                 <input
-                                    type="text"
-                                    placeholder="Nhập username của bạn"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    type="email"
+                                    placeholder="Nhập email của bạn..."
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     required
                                 />
                             </div>
                         </div>
+
+                        <div className="form-group">
+                            <label><FaShieldAlt /> Mã xác nhận (Captcha)</label>
+                            <div className="captcha-container" style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                                <canvas 
+                                    ref={canvasRef} 
+                                    width="120" 
+                                    height="40" 
+                                    style={{ borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+                                    onClick={generateCaptcha}
+                                    title="Nhấn để đổi mã khác"
+                                />
+                                <button type="button" onClick={generateCaptcha} className="btn-refresh-captcha" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '18px' }}>
+                                    <FaSyncAlt />
+                                </button>
+                            </div>
+                            <div className="input-wrapper">
+                                <input
+                                    type="text"
+                                    placeholder="Nhập 5 ký tự trong hình trên"
+                                    value={captchaInput}
+                                    onChange={(e) => setCaptchaInput(e.target.value)}
+                                    maxLength="5"
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         <button type="submit" className="btn-auth" disabled={isLoading}>
-                            {isLoading ? <FaSpinner className="spinner" /> : 'GỬI YÊU CẦU RESET'}
+                            {isLoading ? <FaSpinner className="spinner" /> : 'GỬI MẬT KHẨU MỚI'}
                         </button>
                     </form>
                 )}
 
                 {step === 2 && (
-                    <form onSubmit={handleResetPassword} className="auth-form">
-                        <div className="alert-info">
-                            Mã xác thực đã được xử lý. Vui lòng nhập mật khẩu mới.
-                        </div>
-                        <div className="form-group">
-                            <label><FaKey /> Mã xác thực (Reset Token)</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="text"
-                                    placeholder="Dán mã reset vào đây"
-                                    value={token}
-                                    onChange={(e) => setToken(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label><FaLock /> Mật khẩu mới</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="password"
-                                    placeholder="Nhập mật khẩu mới"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label><FaLock /> Xác nhận mật khẩu mới</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="password"
-                                    placeholder="Nhập lại mật khẩu"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <button type="submit" className="btn-auth" disabled={isLoading}>
-                            {isLoading ? <FaSpinner className="spinner" /> : 'ĐỔI MẬT KHẨU'}
-                        </button>
-                    </form>
-                )}
-
-                {step === 3 && (
                     <div className="success-view">
-                        <FaCheckCircle className="success-icon" />
+                        <FaCheckCircle className="success-icon" style={{ color: '#10b981', fontSize: '48px', marginBottom: '16px' }} />
                         <h2>Thành công!</h2>
-                        <p>Mật khẩu của bạn đã được thay đổi. Bây giờ bạn có thể đăng nhập bằng mật khẩu mới.</p>
-                        <Link to="/login" className="btn-auth">ĐĂNG NHẬP NGAY</Link>
+                        <p>Hệ thống đã tạo mật khẩu mới và gửi đến địa chỉ <strong>{email}</strong>.</p>
+                        <p style={{ fontSize: '14px', color: '#64748b', marginTop: '10px' }}>
+                            Vui lòng kiểm tra Hộp thư đến (hoặc thư mục Spam). Khuyến nghị bạn nên đổi lại mật khẩu sau khi đăng nhập thành công.
+                        </p>
+                        <Link to="/login" className="btn-auth" style={{ marginTop: '24px' }}>ĐĂNG NHẬP NGAY</Link>
                     </div>
                 )}
             </div>

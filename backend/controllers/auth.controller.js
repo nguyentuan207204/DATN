@@ -14,8 +14,9 @@ import {
   setForgotOtp,
   verifyResetOtp,
   clearUserOtp,
+  findUserByEmail,
 } from "../services/user.service.js";
-import { sendOtpEmail, sendPasswordResetEmail } from "../services/email.service.js";
+import { sendOtpEmail, sendPasswordResetEmail, sendNewPasswordEmail } from "../services/email.service.js";
 
 
 
@@ -129,60 +130,47 @@ export const login = async (req, res, next) => {
 
 export const forgotPassword = async (req, res, next) => {
   try {
-    const { username } = req.body;
+    const { email } = req.body;
 
-    if (!username) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Thiếu username",
+        message: "Vui lòng cung cấp địa chỉ email đã đăng ký.",
       });
     }
 
-    const existingUser = await findUserByUsername(username);
-    if (!existingUser) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy tài khoản với username này",
-      });
-    }
-
-    const user = await findUserById(existingUser.id);
+    // 1. Tìm user bằng email
+    const user = await findUserByEmail(email);
+    
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Không tìm thấy thông tin chi tiết tài khoản",
+        message: "Không tìm thấy tài khoản Bệnh nhân nào liên kết với email này.",
       });
     }
 
-    if (!user.email) {
-      return res.status(400).json({
-        success: false,
-        message: "Tài khoản này chưa được liên kết email. Không thể khôi phục mật khẩu.",
-      });
-    }
+    // 2. Tạo mật khẩu mới ngẫu nhiên (8 ký tự: chữ + số)
+    const newPassword = Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 10);
 
-    // Tạo OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
+    // 3. Cập nhật mật khẩu vào Database
+    await updateUserPassword(user.id, newPassword);
 
-    await setForgotOtp(user.id, otpCode, otpExpiresAt);
-
-    // Gửi email
-    console.log(`[Auth] Attempting to send OTP to ${user.email}`);
-    const emailResult = await sendOtpEmail(user.email, otpCode, user.fullName || user.username);
+    // 4. Gửi mật khẩu mới qua email
+    console.log(`[Auth] Attempting to send new auto-generated password to ${user.email}`);
+    const emailResult = await sendNewPasswordEmail(user.email, newPassword, user.fullName || "bạn");
     
     if (!emailResult.success) {
-      console.error("[Auth] sendOtpEmail failed:", emailResult.error);
+      console.error("[Auth] sendNewPasswordEmail failed:", emailResult.error);
       return res.status(500).json({
         success: false,
-        message: "Lỗi hệ thống gửi email. Vui lòng thử lại sau.",
+        message: "Lỗi hệ thống gửi email. Mật khẩu của bạn đã được thay đổi nhưng không thể gửi email thông báo.",
         error: process.env.NODE_ENV === 'development' ? emailResult.error : undefined
       });
     }
 
     return res.json({
       success: true,
-      message: "Mã xác thực đã được gửi đến email của bạn.",
+      message: "Mật khẩu mới đã được khởi tạo và gửi đến email của bạn.",
     });
   } catch (error) {
     console.error("[Auth] forgotPassword Critical Error:", error);
