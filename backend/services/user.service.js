@@ -198,8 +198,8 @@ export const findUserById = async (userId) => {
     `SELECT u.id, u.username, u.roleId, r.name AS roleName, u.isLocked, u.createdAt,
             p.id AS patientId, 
             COALESCE(p.fullName, s.fullName) AS fullName,
-            COALESCE(p.phone, s.phone) AS phone,
-            COALESCE(p.email, s.email) AS email,
+            COALESCE(p.phone, u.phone) AS phone,
+            p.email AS email,
             p.gender, p.dateOfBirth, p.address
      FROM User u
      JOIN Role r ON u.roleId = r.id
