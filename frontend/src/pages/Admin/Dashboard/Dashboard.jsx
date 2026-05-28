@@ -28,14 +28,32 @@ import './Dashboard.css';
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [todaySchedules, setTodaySchedules] = useState([]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       const res = await api.get('/admin/stats');
-      // res.data chứa { success: true, data: { stats, chartData, ... } }
-      // Ta cần lấy res.data.data
       setData(res.data.data || res.data);
+
+      // Tải và lọc lịch trực hôm nay
+      try {
+        const scheduleRes = await api.get('/schedules');
+        if (scheduleRes.data.success) {
+          const today = new Date();
+          const y = today.getFullYear();
+          const m = String(today.getMonth() + 1).padStart(2, '0');
+          const d = String(today.getDate()).padStart(2, '0');
+          const todayStr = `${y}-${m}-${d}`;
+          
+          const filtered = scheduleRes.data.data.filter(s => 
+            s.shiftDate && s.shiftDate.substring(0, 10) === todayStr
+          );
+          setTodaySchedules(filtered);
+        }
+      } catch (err) {
+        console.error('Error fetching schedules on dashboard:', err);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -125,6 +143,86 @@ const Dashboard = () => {
         ))}
       </div>
 
+      <div className="dashboard-double-row">
+        {/* Lịch Hẹn Hôm Nay */}
+        <div className="glass-card today-appointments-box">
+          <div className="box-header" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <MdSchedule /> Lịch Hẹn Hôm Nay ({activities.todayAppointmentList?.length || 0})
+            </h3>
+          </div>
+          <div className="premium-table-container">
+            <table className="premium-table">
+              <thead>
+                <tr>
+                  <th>Thời gian</th>
+                  <th>Bệnh nhân</th>
+                  <th>Bác sĩ</th>
+                  <th>Dịch vụ</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activities.todayAppointmentList?.length === 0 ? (
+                  <tr><td colSpan="5" style={{textAlign: 'center', padding: '20px'}}>Không có lịch khám nào trong hôm nay.</td></tr>
+                ) : activities.todayAppointmentList?.map(apt => (
+                  <tr key={`today-${apt.id}`}>
+                    <td>
+                      <strong>{new Date(apt.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</strong>
+                    </td>
+                    <td>
+                      <p className="p-name" style={{ margin: 0, fontWeight: '600' }}>{apt.patientName}</p>
+                      <span className="p-phone" style={{ fontSize: '12px', color: '#718096' }}>{apt.patientPhone || '-'}</span>
+                    </td>
+                    <td>{apt.doctorName}</td>
+                    <td>{apt.serviceName}</td>
+                    <td>
+                      <span className={`badge badge-${apt.status === 'CONFIRMED' ? 'success' : apt.status === 'PENDING' ? 'warning' : apt.status === 'CANCELLED' ? 'danger' : 'primary'}`}>
+                        {apt.status === 'CONFIRMED' ? 'Đã xác nhận' : apt.status === 'PENDING' ? 'Đang chờ' : apt.status === 'CANCELLED' ? 'Đã hủy' : 'Hoàn thành'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Lịch Trực Hôm Nay */}
+        <div className="glass-card today-schedules-box">
+          <div className="box-header" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <MdEventAvailable /> Lịch Trực Hôm Nay ({todaySchedules.length})
+            </h3>
+          </div>
+          <div className="schedule-card-list">
+            {todaySchedules.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#718096' }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600' }}>Hôm nay không có lịch trực nào.</p>
+                <span style={{ fontSize: '12px' }}>Vui lòng thêm ca trực mới ở trang Quản lý lịch trực.</span>
+              </div>
+            ) : todaySchedules.map(item => (
+              <div key={item.id} className="schedule-card-item">
+                <div className="schedule-staff-info">
+                  <div className="schedule-staff-avatar">
+                    {item.staffName?.[0] || 'NV'}
+                  </div>
+                  <div className="schedule-staff-details">
+                    <p>{item.staffName || 'Nhân viên y tế'}</p>
+                    <span>{item.staffRole === 'BACSI' ? 'Bác sĩ' : item.staffRole === 'YTA' ? 'Y tá' : 'Kỹ thuật viên'}</span>
+                  </div>
+                </div>
+                <div>
+                  <span className={`badge-shift ${item.shiftType === 'AFTERNOON' ? 'badge-shift-afternoon' : 'badge-shift-morning'}`}>
+                    {item.shiftType === 'AFTERNOON' ? 'Ca Chiều' : 'Ca Sáng'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="dashboard-charts-row">
         <div className="glass-card main-chart-box">
           <div className="box-header">
@@ -159,8 +257,8 @@ const Dashboard = () => {
 
         <div className="glass-card activity-box">
           <h3>Hoạt động gần đây</h3>
-          <div className="activity-list">
-            {activities.latestAppointments.map(act => (
+          <div className="activity-list" style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}>
+            {activities.latestAppointments.slice(0, 3).map(act => (
               <div key={`app-${act.id}`} className="activity-item">
                 <div className="act-icon confirm">
                   <MdSchedule />
@@ -176,7 +274,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-            {activities.latestRecords.map(act => (
+            {activities.latestRecords.slice(0, 2).map(act => (
               <div key={`rec-${act.id}`} className="activity-item">
                 <div className="act-icon record">
                   <MdCheckCircle />
@@ -189,44 +287,6 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="dashboard-bottom-row">
-        <div className="glass-card performers-box">
-          <div className="box-header">
-            <h3>Bác sĩ tiêu biểu</h3>
-            <button className="text-btn">Xem tất cả</button>
-          </div>
-          <div className="performers-list">
-            {topDoctors.map((dr, i) => (
-              <div key={i} className="performer-item">
-                <div className="doc-avatar">{dr.fullName?.[0]}</div>
-                <div className="perf-info">
-                  <p className="p-name">{dr.fullName}</p>
-                  <p className="p-dept">{dr.department}</p>
-                </div>
-                <div className="perf-stats">
-                  <span className="rating"><MdStar /> 5.0</span>
-                  <span className="appts">{dr.appointmentCount} lịch hẹn</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="glass-card satisfaction-box">
-          <h3>Độ hài lòng của bệnh nhân</h3>
-          <div className="radial-progress-container">
-            <div className="radial-progress-mock">
-               <div className="progress-value">100%</div>
-               <svg viewBox="0 0 36 36" className="circular-chart blue">
-                <path className="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="circle" strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-            </div>
-            <p className="satisfaction-text">Cập nhật theo dữ liệu thực tế</p>
           </div>
         </div>
       </div>

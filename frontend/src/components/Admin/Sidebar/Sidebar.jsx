@@ -12,7 +12,9 @@ import {
   MdPeople,
   MdMedication,
   MdAdminPanelSettings,
-  MdClose
+  MdClose,
+  MdAccessTime,
+  MdArticle
 } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import './Sidebar.css';
@@ -29,9 +31,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { path: '/admin/services', icon: <MdOutlinePostAdd />, label: 'Dịch vụ Y tế' },
     { path: '/admin/patients', icon: <MdPeople />, label: 'Quản lý Bệnh nhân' },
     { path: '/admin/appointments', icon: <MdCalendarMonth />, label: 'Lịch hẹn' },
+    { path: '/admin/schedules', icon: <MdAccessTime />, label: 'Phân công trực' },
+    { path: '/admin/news', icon: <MdArticle />, label: 'Quản lý tin tức' },
     { path: '/admin/pharmacy', icon: <MdMedication />, label: 'Dược & Vật tư' },
     { path: '/admin/invoices', icon: <MdBarChart />, label: 'Viện phí & Doanh thu' },
   ];
+
 
   const handleLogout = () => {
     if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {

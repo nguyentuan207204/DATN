@@ -78,19 +78,19 @@ export const updateUserRole = async (userId, roleId) => {
 };
 
 export const deleteUserById = async (userId) => {
-    // Note: In a real system, you might want to handle cascading deletes or soft deletes
-    await pool.query(`DELETE FROM User WHERE id = ?`, [userId]);
-    return { message: "User deleted" };
+  // Note: In a real system, you might want to handle cascading deletes or soft deletes
+  await pool.query(`DELETE FROM User WHERE id = ?`, [userId]);
+  return { message: "User deleted" };
 };
 
 export const toggleUserLock = async (userId, isLocked) => {
-    await pool.query(`UPDATE User SET isLocked = ? WHERE id = ?`, [isLocked ? 1 : 0, userId]);
-    return { message: isLocked ? "User locked" : "User unlocked" };
+  await pool.query(`UPDATE User SET isLocked = ? WHERE id = ?`, [isLocked ? 1 : 0, userId]);
+  return { message: isLocked ? "User locked" : "User unlocked" };
 };
 
 export const getAllRoles = async () => {
-    const [rows] = await pool.query(`SELECT * FROM Role`);
-    return rows;
+  const [rows] = await pool.query(`SELECT * FROM Role`);
+  return rows;
 };
 
 export const createUnverifiedUser = async ({ username, password, roleId, fullName, phone, email, gender, dob }) => {
@@ -188,10 +188,12 @@ export const findUserByUsername = async (username) => {
 
 export const findUserByEmail = async (email) => {
   const [rows] = await pool.query(
-    `SELECT u.*, r.name AS roleName, p.email, p.fullName
+    `SELECT u.id, u.username, u.roleId, u.isLocked, 
+            p.email AS email, 
+            COALESCE(p.fullName, s.fullName) AS fullName
      FROM User u
-     JOIN Role r ON u.roleId = r.id
-     JOIN Patient p ON u.id = p.userId
+     LEFT JOIN Patient p ON u.id = p.userId
+     LEFT JOIN Staff s ON u.id = s.userId
      WHERE p.email = ?`,
     [email]
   );
@@ -204,10 +206,15 @@ export const updateUserPassword = async (userId, newPassword) => {
   return { message: "Password updated" };
 };
 
+export const setUserRequirePasswordChange = async (userId, value) => {
+  await pool.query(`UPDATE User SET requirePasswordChange = ? WHERE id = ?`, [value ? 1 : 0, userId]);
+  return { success: true };
+};
+
 export const findUserById = async (userId) => {
   if (!userId) return null;
   const [rows] = await pool.query(
-    `SELECT u.id, u.username, u.roleId, r.name AS roleName, u.isLocked, u.createdAt,
+    `SELECT u.id, u.username, u.roleId, r.name AS roleName, u.isLocked, u.createdAt, u.requirePasswordChange,
             p.id AS patientId, 
             COALESCE(p.fullName, s.fullName) AS fullName,
             COALESCE(p.phone, u.phone) AS phone,

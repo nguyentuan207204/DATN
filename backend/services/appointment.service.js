@@ -70,6 +70,17 @@ export const getAdminAppointments = async ({ page = 1, pageSize = 10 }) => {
 };
 
 export const updateAppointmentStatus = async (id, status) => {
+    // Kiểm tra trạng thái hiện tại
+    const [[appointment]] = await pool.query("SELECT status FROM Appointment WHERE id = ?", [id]);
+
+    if (!appointment) {
+        throw new Error("Lịch hẹn không tồn tại");
+    }
+
+    if (appointment.status === 'CANCELLED') {
+        throw new Error("Không thể thay đổi trạng thái của lịch hẹn đã hủy");
+    }
+
     await pool.query(
         "UPDATE Appointment SET status = ? WHERE id = ?",
         [status, id]
@@ -82,10 +93,10 @@ export const cancelAppointment = async (id, patientId) => {
         "UPDATE Appointment SET status = 'CANCELLED' WHERE id = ? AND patientId = ? AND status IN ('PENDING', 'UPCOMING')",
         [id, patientId]
     );
-    
+
     if (result.affectedRows === 0) {
         throw new Error("Không thể hủy lịch hẹn. Lịch hẹn không tồn tại hoặc không ở trạng thái có thể hủy.");
     }
-    
+
     return true;
 };

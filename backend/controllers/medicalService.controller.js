@@ -26,6 +26,27 @@ export const getServices = async (req, res, next) => {
  */
 export const createService = async (req, res, next) => {
     try {
+        const { name, price, categoryId } = req.body;
+        let { unit } = req.body;
+        if (!unit) unit = 'Lần'; // Mặc định nếu không truyền
+
+        // Validate required fields
+        if (!name || !categoryId) {
+            return res.status(400).json({
+                success: false,
+                message: "Tên và nhóm dịch vụ là bắt buộc",
+            });
+        }
+
+        // Validate price > 0
+        const parsedPrice = Number(price);
+        if (!price || isNaN(parsedPrice) || parsedPrice <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "vui lòng nhập giá lớn hơn 0",
+            });
+        }
+
         const data = await service.createService(req.body);
         res.status(201).json({ 
             success: true, 
@@ -43,6 +64,19 @@ export const createService = async (req, res, next) => {
 export const updateService = async (req, res, next) => {
     try {
         const { id } = req.params;
+        const { price } = req.body;
+
+        // Validate price > 0 if provided
+        if (price !== undefined) {
+            const parsedPrice = Number(price);
+            if (isNaN(parsedPrice) || parsedPrice <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "vui lòng nhập giá lớn hơn 0",
+                });
+            }
+        }
+
         const data = await service.updateService(id, req.body);
         res.json({ 
             success: true, 

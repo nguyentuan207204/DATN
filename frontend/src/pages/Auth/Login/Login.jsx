@@ -49,6 +49,13 @@ const Login = () => {
         localStorage.setItem('token', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('user', JSON.stringify(user));
+        
+        if (user.requirePasswordChange) {
+            toast.warning('Bạn cần đổi mật khẩu ngay để tiếp tục.');
+            navigate('/force-change-password');
+            return;
+        }
+
         toast.success('Đăng nhập thành công!');
         
         // Redirect based on role

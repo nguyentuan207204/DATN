@@ -1,0 +1,514 @@
+{
+  "info": {
+    "name": "Clinic HIS API",
+    "_postman_id": "b9e1c2a4-0000-0000-0000-000000000000",
+    "description": "Postman collection cho hệ thống quản lý phòng khám: khám ngoại trú/nội trú, phẫu thuật, viện phí, BHYT, báo cáo tài chính.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Outpatient - Khám ngoại trú",
+      "item": [
+        {
+          "name": "Tạo hồ sơ khám ngoại trú từ lịch hẹn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": 1,\n  \"doctorId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/outpatient/visits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outpatient",
+                "visits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách tất cả lần khám ngoại trú",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/outpatient/visits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outpatient",
+                "visits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách lần khám theo bệnh nhân",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/outpatient/patients/1/visits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outpatient",
+                "patients",
+                "1",
+                "visits"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Chi tiết 1 lần khám (MedicalRecord)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/outpatient/visits/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "outpatient",
+                "visits",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inpatient - Nội trú",
+      "item": [
+        {
+          "name": "Nhập viện",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 1,\n  \"bedId\": 1,\n  \"admittedAt\": \"2026-02-23T08:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inpatient/admissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inpatient",
+                "admissions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ra viện",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dischargedAt\": \"2026-02-24T10:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inpatient/admissions/1/discharge",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inpatient",
+                "admissions",
+                "1",
+                "discharge"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách nội trú đang điều trị",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/inpatient/admissions/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inpatient",
+                "admissions",
+                "active"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách tất cả hồ sơ nội trú",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/inpatient/admissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inpatient",
+                "admissions"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Surgeries - Phẫu thuật / Thủ thuật",
+      "item": [
+        {
+          "name": "Tạo phẫu thuật / thủ thuật",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recordId\": 1,\n  \"surgeonId\": 1,\n  \"name\": \"Cắt ruột thừa nội soi\",\n  \"date\": \"2026-02-23T09:30:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/surgeries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "surgeries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách tất cả phẫu thuật / thủ thuật",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/surgeries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "surgeries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách phẫu thuật theo hồ sơ bệnh án",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/surgeries/record/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "surgeries",
+                "record",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patient - Lịch sử điều trị",
+      "item": [
+        {
+          "name": "Lịch sử điều trị bệnh nhân (full)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/1/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "1",
+                "history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Lịch sử điều trị theo khoảng ngày",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/1/history?from=2026-02-01&to=2026-02-29",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "1",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-02-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-02-29"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billing - Viện phí, BHYT, Báo cáo",
+      "item": [
+        {
+          "name": "Tạo hóa đơn viện phí tự động theo dịch vụ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 1,\n  \"recordId\": 1,\n  \"items\": [\n    { \"serviceId\": 1, \"quantity\": 1 },\n    { \"serviceId\": 2, \"quantity\": 2 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/invoices/auto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "invoices",
+                "auto"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Danh sách hóa đơn (lọc theo trạng thái & ngày)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/invoices?status=UNPAID&from=2026-02-01&to=2026-02-29",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "invoices"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "UNPAID"
+                },
+                {
+                  "key": "from",
+                  "value": "2026-02-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-02-29"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Chi tiết hóa đơn",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/invoices/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "invoices",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Thanh toán hóa đơn (thu tiền bệnh nhân)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500000,\n  \"method\": \"CASH\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/invoices/1/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "invoices",
+                "1",
+                "payments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "BHYT - Xem trước số BHYT chi trả",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coveragePercent\": 80\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/invoices/1/insurance/preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "invoices",
+                "1",
+                "insurance",
+                "preview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "BHYT - Thanh toán BHYT + đồng chi trả",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coveragePercent\": 80,\n  \"insuranceMethod\": \"BANKING\",\n  \"patientMethod\": \"CASH\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/invoices/1/insurance/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "invoices",
+                "1",
+                "insurance",
+                "pay"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Báo cáo tài chính - Doanh thu theo ngày & phương thức",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/billing/reports/revenue?from=2026-02-01&to=2026-02-29",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "billing",
+                "reports",
+                "revenue"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-02-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-02-29"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}
+

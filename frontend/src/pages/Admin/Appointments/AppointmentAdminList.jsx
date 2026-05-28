@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MdSearch, 
-  MdFilterList, 
-  MdEdit, 
-  MdDelete, 
+import {
+  MdSearch,
+  MdFilterList,
+  MdEdit,
+  MdDelete,
   MdCalendarToday,
   MdAccessTime,
   MdPhone,
@@ -80,7 +80,7 @@ const AppointmentAdminList = () => {
     }
   };
 
-  const filteredAppointments = appointments.filter(apt => 
+  const filteredAppointments = appointments.filter(apt =>
     apt.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     apt.doctorName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -99,9 +99,9 @@ const AppointmentAdminList = () => {
       <div className="glass-card table-controls">
         <div className="search-box">
           <MdSearch />
-          <input 
-            type="text" 
-            placeholder="Tìm theo tên bệnh nhân hoặc bác sĩ..." 
+          <input
+            type="text"
+            placeholder="Tìm theo tên bệnh nhân hoặc bác sĩ..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -147,10 +147,11 @@ const AppointmentAdminList = () => {
                   <td>
                     <div className="status-update-cell">
                       {getStatusBadge(apt.status)}
-                      <select 
+                      <select
                         className="status-select-sm"
                         value={apt.status}
                         onChange={(e) => handleStatusUpdate(apt.id, e.target.value)}
+                        disabled={apt.status === 'CANCELLED' || apt.status === 'DONE'}
                       >
                         <option value="PENDING">Chờ xác nhận</option>
                         <option value="CONFIRMED">Xác nhận</option>
@@ -162,16 +163,16 @@ const AppointmentAdminList = () => {
                   <td style={{ textAlign: 'right' }}>
                     <div className="action-group">
                       {apt.status === 'CONFIRMED' && (
-                        <button 
-                          className="btn-premium btn-premium-primary style-sm" 
+                        <button
+                          className="btn-premium btn-premium-primary style-sm"
                           style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
                           onClick={() => setSelectedAppointment(apt)}
                         >
                           Khám bệnh
                         </button>
                       )}
-                      <button 
-                        className="icon-btn-sm edit" 
+                      <button
+                        className="icon-btn-sm edit"
                         onClick={() => handleOpenDetail(apt)}
                         title="Xem chi tiết"
                       >
@@ -186,7 +187,7 @@ const AppointmentAdminList = () => {
             </tbody>
           </table>
         </div>
-        <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalCount={totalCount}
           pageSize={pageSize}
@@ -199,17 +200,17 @@ const AppointmentAdminList = () => {
       </div>
 
       {selectedAppointment && (
-        <CreateRecordModal 
-          appointment={selectedAppointment} 
-          onClose={() => setSelectedAppointment(null)} 
+        <CreateRecordModal
+          appointment={selectedAppointment}
+          onClose={() => setSelectedAppointment(null)}
           onSuccess={() => {
             setSelectedAppointment(null);
             fetchAppointments();
-          }} 
+          }}
         />
       )}
 
-      <AppointmentDetailModal 
+      <AppointmentDetailModal
         show={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         appointment={apptToView}

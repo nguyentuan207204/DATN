@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import {
   createUser,
   findUserByUsername,
+  findUserByEmail,
   updateUserPassword,
   createUnverifiedUser,
   verifyUserOtp,
@@ -14,7 +15,7 @@ import {
   setForgotOtp,
   verifyResetOtp,
   clearUserOtp,
-  findUserByEmail,
+  setUserRequirePasswordChange,
 } from "../services/user.service.js";
 import { sendOtpEmail, sendPasswordResetEmail, sendNewPasswordEmail } from "../services/email.service.js";
 
@@ -22,7 +23,7 @@ import { sendOtpEmail, sendPasswordResetEmail, sendNewPasswordEmail } from "../s
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "15m"; 
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "15m";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "refresh-dev-secret";
 const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
 
@@ -121,6 +122,7 @@ export const login = async (req, res, next) => {
         username: user.username,
         roleId: user.roleId,
         role: user.roleName,
+        requirePasswordChange: Boolean(user.requirePasswordChange),
       },
     });
   } catch (error) {
@@ -135,42 +137,40 @@ export const forgotPassword = async (req, res, next) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Vui lòng cung cấp địa chỉ email đã đăng ký.",
+        message: "Thiếu email",
       });
     }
 
-    // 1. Tìm user bằng email
     const user = await findUserByEmail(email);
-    
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Không tìm thấy tài khoản Bệnh nhân nào liên kết với email này.",
+        message: "Không tìm thấy tài khoản với email này",
       });
     }
 
-    // 2. Tạo mật khẩu mới ngẫu nhiên (8 ký tự: chữ + số)
-    const newPassword = Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 10);
+    // Tạo mật khẩu mới ngẫu nhiên (8 ký tự)
+    const newPassword = Math.random().toString(36).slice(-8);
 
-    // 3. Cập nhật mật khẩu vào Database
     await updateUserPassword(user.id, newPassword);
+    await setUserRequirePasswordChange(user.id, true);
 
-    // 4. Gửi mật khẩu mới qua email
-    console.log(`[Auth] Attempting to send new auto-generated password to ${user.email}`);
-    const emailResult = await sendNewPasswordEmail(user.email, newPassword, user.fullName || "bạn");
-    
+    // Gửi email
+    console.log(`[Auth] Attempting to send new password to ${user.email}`);
+    const emailResult = await sendNewPasswordEmail(user.email, newPassword, user.fullName || user.username);
+
     if (!emailResult.success) {
       console.error("[Auth] sendNewPasswordEmail failed:", emailResult.error);
       return res.status(500).json({
         success: false,
-        message: "Lỗi hệ thống gửi email. Mật khẩu của bạn đã được thay đổi nhưng không thể gửi email thông báo.",
+        message: "Lỗi hệ thống gửi email. Vui lòng thử lại sau.",
         error: process.env.NODE_ENV === 'development' ? emailResult.error : undefined
       });
     }
 
     return res.json({
       success: true,
-      message: "Mật khẩu mới đã được khởi tạo và gửi đến email của bạn.",
+      message: "Mật khẩu mới đã được gửi đến email của bạn.",
     });
   } catch (error) {
     console.error("[Auth] forgotPassword Critical Error:", error);
@@ -251,8 +251,8 @@ export const registerUnverified = async (req, res, next) => {
       message: email
         ? "Đăng ký thành công. Mã OTP đã được gửi đến email của bạn."
         : "Đăng ký bước 1 thành công. Vui lòng xác thực OTP.",
-      data: { 
-        userId: result.userId, 
+      data: {
+        userId: result.userId,
         patientId: result.patientId,
         // Chỉ trả OTP trong môi trường dev để tiện test
         ...(process.env.NODE_ENV !== "production" && { otp: result.otpCode })
@@ -320,9 +320,9 @@ export const updateMe = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const result = await updateUserProfile(userId, req.body);
-    return res.json({ 
-      success: true, 
-      message: result.message 
+    return res.json({
+      success: true,
+      message: result.message
     });
   } catch (error) {
     next(error);
@@ -363,6 +363,7 @@ export const changePassword = async (req, res, next) => {
 
     // Cập nhật mật khẩu mới (hàm này đã có sẵn logic băm mật khẩu nội bộ)
     await updateUserPassword(userId, newPassword);
+    await setUserRequirePasswordChange(userId, false);
 
     return res.json({
       success: true,
@@ -409,7 +410,7 @@ export const refreshToken = async (req, res, next) => {
 
     // 3. Cấp Access Token mới
     const newAccessToken = signAccessToken(user);
-    
+
     // Rotate Refresh Token
     const newRefreshToken = signRefreshToken(user);
     await updateRefreshToken(user.id, newRefreshToken);
@@ -435,7 +436,7 @@ export const resetAdminPassword = async (req, res, next) => {
     const adminRoleId = 1; // Giả định roleId 1 là ADMIN
 
     const user = await findUserByUsername(adminUsername);
-    
+
     if (user) {
       await updateUserPassword(user.id, defaultPassword);
       return res.json({

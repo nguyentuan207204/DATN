@@ -23,9 +23,16 @@ export const getAllServices = async (page = null, pageSize = null) => {
  */
 export const createService = async (serviceData) => {
     const { name, unit, price, categoryId, departmentId } = serviceData;
+
+    // Validate price: must be a positive number greater than 0
+    const parsedPrice = Number(price);
+    if (!price || isNaN(parsedPrice) || parsedPrice <= 0) {
+        throw new Error("vui lòng nhập giá lớn hơn 0");
+    }
+
     const [result] = await pool.query(
         "INSERT INTO Service (name, unit, price, categoryId, departmentId) VALUES (?, ?, ?, ?, ?)",
-        [name, unit, Number(price), categoryId, departmentId || null]
+        [name, unit, parsedPrice, categoryId, departmentId || null]
     );
     return { id: result.insertId, ...serviceData };
 };
@@ -35,6 +42,15 @@ export const createService = async (serviceData) => {
  */
 export const updateService = async (id, serviceData) => {
     const { name, unit, price, categoryId, departmentId } = serviceData;
+
+    // Validate price if provided: must be a positive number greater than 0
+    if (price !== undefined) {
+        const parsedPrice = Number(price);
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
+            throw new Error("vui lòng nhập giá lớn hơn 0");
+        }
+    }
+
     await pool.query(
         "UPDATE Service SET name = ?, unit = ?, price = ?, categoryId = ?, departmentId = ? WHERE id = ?",
         [name, unit, Number(price), categoryId, departmentId || null, id]

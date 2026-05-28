@@ -1,0 +1,33 @@
+# Hệ thống Theo dõi Lỗi (Error Tracking)
+
+## [2026-05-17 19:26] - MySQL Connection Limit Exceeded
+
+- **Type**: Integration
+- **Severity**: High
+- **File**: `backend/config/db.js`
+- **Agent**: @backend-developer
+- **Root Cause**: Cơ sở dữ liệu MySQL (gói Free) có giới hạn `max_user_connections = 5`. Khi hệ thống backend được deploy lên Vercel Serverless, số lượng kết nối mặc định được tạo vượt quá ngưỡng cho phép, dẫn đến việc API báo lỗi 500 khi người dùng đăng nhập hoặc lấy danh sách bác sĩ.
+- **Error Message**: 
+  ```
+  ER_USER_LIMIT_REACHED: User 'uy3vr2lutdyavxsd' has exceeded the 'max_user_connections' resource (current value: 5)
+  ```
+- **Fix Applied**: Sửa đổi cấu hình `mysql.createPool` trong `backend/config/db.js`. Bổ sung tham số `connectionLimit=2&waitForConnections=true&queueLimit=0` vào chuỗi `DATABASE_URL` để ép các Vercel serverless function chỉ mở tối đa 2 kết nối cho mỗi instance, tránh việc mở tràn lan gây lỗi database.
+- **Prevention**: Cần theo dõi thêm lưu lượng trên Production. Về lâu dài có thể cần chuyển sang dịch vụ MySQL trả phí hoặc sử dụng Prisma/Connection Pooling middleware chuyên biệt (như PGBouncer cho Postgres hoặc ProxySQL cho MySQL) nếu lượng truy cập tăng vọt.
+- **Status**: Fixed
+
+---
+
+## [2026-05-26 05:46] - Lỗi vượt quá kết nối MySQL (max_user_connections) trên Vercel
+
+- **Type**: Runtime
+- **Severity**: High
+- **File**: `backend/config/db.js`
+- **Agent**: Antigravity Orchestrator
+- **Root Cause**: Database trên server có giới hạn max 5 connections. Khi deploy lên serverless Vercel, các function khởi tạo connection pool và nhanh chóng vượt quá giới hạn này, dẫn đến lỗi 500 (`ER_USER_LIMIT_REACHED`).
+- **Error Message**: 
+  ```
+  ERROR: Error: User 'uy3vr2lutdyavxsd' has exceeded the 'max_user_connections' resource (current value: 5)
+  ```
+- **Fix Applied**: Bổ sung `connectionLimit=1` một cách tường minh vào cấu hình `mysql.createPool` trong `db.js`.
+- **Prevention**: Luôn set giới hạn kết nối cực thấp (1-2) khi kết nối Database truyền thống từ môi trường Serverless (Vercel, AWS Lambda) hoặc cấu hình Connection Pooling (PgBouncer, Prisma Accelerate) ở cấp middleware.
+- **Status**: Fixed

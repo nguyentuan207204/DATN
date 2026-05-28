@@ -60,6 +60,24 @@ export const getDashboardStats = async () => {
     LIMIT 10
   `);
 
+  const [todayAppointmentList] = await pool.query(`
+    SELECT 
+      a.id, 
+      p.fullName as patientName, 
+      p.phone as patientPhone,
+      ms.name as serviceName,
+      s.fullName as doctorName, 
+      a.date,
+      a.status,
+      a.notes
+    FROM Appointment a
+    JOIN Patient p ON a.patientId = p.id
+    JOIN Staff s ON a.doctorId = s.id
+    LEFT JOIN Service ms ON a.serviceId = ms.id
+    WHERE DATE(a.date) = CURDATE()
+    ORDER BY a.date ASC
+  `);
+
   const [latestRecords] = await pool.query(`
     SELECT 
       mr.id, 
@@ -95,7 +113,8 @@ export const getDashboardStats = async () => {
     chartData,
     activities: {
       latestAppointments,
-      latestRecords
+      latestRecords,
+      todayAppointmentList
     },
     topDoctors
   };

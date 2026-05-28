@@ -188,11 +188,20 @@ export const getCriticalCount = async (req, res) => {
 
 export const createMedicine = async (req, res) => {
   try {
-    const { name, unit } = req.body;
+    const { name, unit, price } = req.body;
     if (!name || !unit) {
       return res.status(400).json({
         success: false,
         message: "Tên thuốc và đơn vị là bắt buộc",
+      });
+    }
+
+    // Validate price > 0
+    const parsedPrice = Number(price);
+    if (req.body.price === undefined || isNaN(parsedPrice) || parsedPrice <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "vui lòng nhập giá lớn hơn 0",
       });
     }
 
@@ -218,12 +227,24 @@ export const createMedicine = async (req, res) => {
 export const updateMedicine = async (req, res) => {
   try {
     const { id } = req.params;
+    const { price } = req.body;
     
     if (!id) {
       return res.status(400).json({
         success: false,
         message: "Thiếu ID Dược phẩm",
       });
+    }
+
+    // Validate price > 0 if provided
+    if (price !== undefined) {
+      const parsedPrice = Number(price);
+      if (isNaN(parsedPrice) || parsedPrice <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "vui lòng nhập giá lớn hơn 0",
+        });
+      }
     }
 
     const result = await pharmacyService.updateMedicine(id, req.body);

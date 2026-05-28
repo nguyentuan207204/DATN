@@ -374,3 +374,98 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Dashboard Double Row Layout (Lịch hẹn & Lịch trực) */
+.dashboard-double-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 992px) {
+  .dashboard-double-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.today-schedules-box {
+  padding: 24px;
+}
+
+.schedule-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.schedule-card-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.2s ease;
+}
+
+.schedule-card-item:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.05);
+  border-color: rgba(49, 130, 206, 0.3);
+}
+
+.schedule-staff-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.schedule-staff-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1a3c5e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.schedule-staff-details p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.schedule-staff-details span {
+  font-size: 11px;
+  color: #718096;
+}
+
+.badge-shift {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-shift-morning {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.badge-shift-afternoon {
+  background-color: #fffaf0;
+  color: #dd6b20;
+}
+

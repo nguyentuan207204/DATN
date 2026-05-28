@@ -35,7 +35,6 @@ const ServiceManagement = () => {
   // Form State
   const [serviceForm, setServiceForm] = useState({
     name: '',
-    unit: '',
     price: 0,
     categoryId: '',
     departmentId: ''
@@ -82,7 +81,6 @@ const ServiceManagement = () => {
       setCurrentService(service);
       setServiceForm({
         name: service.name,
-        unit: service.unit,
         price: service.price,
         categoryId: service.categoryId,
         departmentId: service.departmentId || ''
@@ -91,7 +89,6 @@ const ServiceManagement = () => {
       setCurrentService(null);
       setServiceForm({
         name: '',
-        unit: '',
         price: 0,
         categoryId: categories[0]?.id || '',
         departmentId: ''
@@ -198,7 +195,6 @@ const ServiceManagement = () => {
                   <th>Tên dịch vụ</th>
                   <th>Nhóm</th>
                   <th>Đơn giá</th>
-                  <th>Đơn vị</th>
                   <th style={{ textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
@@ -212,7 +208,6 @@ const ServiceManagement = () => {
                     <td className="font-bold">{service.name}</td>
                     <td><span className="badge badge-primary">{categories.find(c => c.id === service.categoryId)?.name}</span></td>
                     <td className="color-primary">{Number(service.price).toLocaleString('vi-VN')} đ</td>
-                    <td>{service.unit}</td>
                     <td style={{ textAlign: 'right' }}>
                       <button className="icon-btn-sm edit" onClick={() => handleOpenServiceModal(service)} title="Chỉnh sửa"><MdEdit /></button>
                       <button className="icon-btn-sm delete" onClick={() => handleServiceDelete(service.id)} title="Xóa"><MdDelete /></button>
@@ -276,25 +271,14 @@ const ServiceManagement = () => {
                   required
                 />
               </div>
-              <div className="dashboard-grid-2-1" style={{ gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div className="form-group">
-                  <label>Đơn giá (VNĐ)</label>
-                  <input 
-                    type="number" 
-                    value={serviceForm.price} 
-                    onChange={e => setServiceForm({...serviceForm, price: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Đơn vị tính</label>
-                  <input 
-                    type="text" 
-                    value={serviceForm.unit} 
-                    onChange={e => setServiceForm({...serviceForm, unit: e.target.value})}
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label>Đơn giá (VNĐ)</label>
+                <input 
+                  type="number" 
+                  value={serviceForm.price} 
+                  onChange={e => setServiceForm({...serviceForm, price: e.target.value})}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label>Nhóm dịch vụ</label>

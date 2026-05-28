@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client safely (avoid crashing on import if env is missing)
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy_key_to_prevent_crash_on_import");
 
 const FROM_EMAIL =
   process.env.RESEND_FROM_EMAIL ||
@@ -16,7 +16,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
     console.error("[Email] Critical: RESEND_API_KEY is not defined in environment variables.");
     return { success: false, error: "Missing API Key" };
   }
-  
+
   try {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
@@ -190,16 +190,15 @@ export const sendAppointmentConfirmationEmail = async (email, appointment) => {
           <strong style="color:#0284c7;font-size:16px;">📅 ${formattedDate}</strong>
         </td>
       </tr>
-      ${
-        notes
-          ? `<tr>
+      ${notes
+      ? `<tr>
         <td style="padding:16px 20px;">
           <span style="color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Ghi chú</span><br>
           <span style="color:#475569;font-size:14px;">${notes}</span>
         </td>
       </tr>`
-          : ""
-      }
+      : ""
+    }
     </table>
 
     <!-- Reminder -->
@@ -271,52 +270,26 @@ export const sendPasswordResetEmail = async (email, resetToken, fullName = "bạ
 };
 
 // ============================================================
-// 3b. New Password Email (Auto Generated)
+// Send New Generated Password Email
 // ============================================================
 
-/**
- * Send randomly generated password email
- * @param {string} email - user email
- * @param {string} newPassword - newly generated plain text password
- * @param {string} fullName - user's name
- */
 export const sendNewPasswordEmail = async (email, newPassword, fullName = "bạn") => {
-  const BASE_URL = process.env.FRONTEND_URL || "https://datn-orcin.vercel.app";
-  const loginLink = `${BASE_URL}/login`;
-  const subject = "🔑 Cấp Lại Mật Khẩu — Phòng Khám";
-
+  const subject = "🔑 Mật khẩu mới của bạn — Phòng Khám";
   const html = withLayout(
-    "Mật khẩu mới của bạn",
+    "Mật khẩu mới",
     `
-    <h2 style="color:#1e293b;font-size:22px;margin:0 0 8px;">Cấp lại mật khẩu thành công</h2>
-    <p style="color:#64748b;font-size:15px;line-height:1.6;margin:0 0 24px;">
-      Xin chào <strong>${fullName}</strong>,<br/>
-      Hệ thống đã tự động tạo một mật khẩu mới cho tài khoản của bạn theo yêu cầu.
+    <h2 style="color:#1e293b;font-size:22px;margin:0 0 8px;">Mật khẩu mới của bạn</h2>
+    <p style="color:#64748b;font-size:15px;line-height:1.6;margin:0 0 28px;">
+      Xin chào <strong>${fullName}</strong>, mật khẩu mới cho tài khoản của bạn đã được tạo thành công:
     </p>
 
-    <!-- Password Box -->
-    <div style="background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;margin:0 0 28px;">
-      <p style="margin:0 0 8px;color:#475569;font-size:14px;">Mật khẩu mới của bạn là:</p>
-      <div style="font-family:monospace;font-size:28px;font-weight:bold;color:#0f172a;letter-spacing:2px;">
-        ${newPassword}
-      </div>
+    <div style="background:#f0f9ff;border:2px dashed #0ea5e9;border-radius:12px;padding:28px;text-align:center;margin:0 0 28px;">
+      <p style="margin:0;color:#0284c7;font-size:32px;font-weight:700;letter-spacing:4px;">${newPassword}</p>
     </div>
 
-    <!-- CTA Button -->
-    <div style="text-align:center;margin:0 0 28px;">
-      <a href="${loginLink}"
-         style="display:inline-block;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:16px;font-weight:600;letter-spacing:0.3px;">
-        Đăng Nhập Ngay
-      </a>
-    </div>
-
-    <!-- Warning -->
-    <div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:16px;">
-      <p style="margin:0;color:#92400e;font-size:14px;">
-        ⚠️ <strong>Khuyến nghị bảo mật:</strong><br>
-        Vui lòng đăng nhập và đổi lại mật khẩu của riêng bạn ngay sau khi truy cập thành công.
-      </p>
-    </div>
+    <p style="color:#94a3b8;font-size:13px;margin:0;">
+      Vui lòng đăng nhập bằng mật khẩu này và đổi lại mật khẩu để đảm bảo an toàn.
+    </p>
     `
   );
 
@@ -359,9 +332,8 @@ export const sendInvoiceEmail = async (email, invoice) => {
     </p>
 
     <!-- Invoice Items Table -->
-    ${
-      itemRows
-        ? `
+    ${itemRows
+      ? `
     <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin:0 0 24px;">
       <thead>
         <tr style="background:#f8fafc;">
@@ -373,7 +345,7 @@ export const sendInvoiceEmail = async (email, invoice) => {
       <tbody>${itemRows}</tbody>
     </table>
     `
-        : ""
+      : ""
     }
 
     <!-- Total -->

@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { nowVN, fromVNDateString } from "../utils/dateHelper.js";
 
 /* =====================================================
    NỘI TRÚ – NHẬP VIỆN / RA VIỆN
@@ -31,7 +32,7 @@ export const admitPatient = async ({ patientId, bedId, admittedAt }) => {
       INSERT INTO Admission (patientId, bedId, admittedAt)
       VALUES (?, ?, ?)
       `,
-      [patientId, bedId, admittedAt ? new Date(admittedAt) : new Date()]
+      [patientId, bedId, admittedAt ? admittedAt : nowVN()]
     );
 
     await conn.commit();
@@ -71,7 +72,7 @@ export const dischargePatient = async ({ admissionId, dischargedAt }) => {
     SET dischargedAt = ?
     WHERE id = ?
     `,
-    [dischargedAt ? new Date(dischargedAt) : new Date(), admissionId]
+    [dischargedAt ? dischargedAt : nowVN(), admissionId]
   );
 
   return { message: "Cập nhật ra viện thành công" };
@@ -155,13 +156,14 @@ export const getAdmissionProgress = async (admissionId) => {
 
   const admission = admissionRows[0];
 
-  const endDate = admission.dischargedAt || new Date();
-  const startDate = admission.admittedAt;
+  // dateStrings=true nên mysql2 trả về chuỗi — dùng fromVNDateString() để parse đúng UTC+7
+  const endDate   = admission.dischargedAt ? fromVNDateString(admission.dischargedAt) : new Date();
+  const startDate = fromVNDateString(admission.admittedAt);
 
   const daysInHospital = Math.max(
     1,
     Math.ceil(
-      (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+      (endDate.getTime() - startDate.getTime()) /
         (1000 * 60 * 60 * 24)
     )
   );

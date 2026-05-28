@@ -16,6 +16,8 @@ import '../../../styles/AdminPremium.css';
 import './PatientAdminList.css';
 
 import Pagination from "../../../components/Admin/Pagination/Pagination";
+import PatientViewModal from "../../../components/Admin/Modals/PatientViewModal";
+import PatientEditModal from "../../../components/Admin/Modals/PatientEditModal";
 
 const PatientAdminList = () => {
   const [patients, setPatients] = useState([]);
@@ -26,6 +28,22 @@ const PatientAdminList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
   const [totalCount, setTotalCount] = useState(0);
+
+  // Modal states
+  const [selectedPatientView, setSelectedPatientView] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedPatientEdit, setSelectedPatientEdit] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const handleViewPatient = (patient) => {
+    setSelectedPatientView(patient);
+    setShowViewModal(true);
+  };
+
+  const handleEditPatient = (patient) => {
+    setSelectedPatientEdit(patient);
+    setShowEditModal(true);
+  };
 
   const fetchPatients = async () => {
     try {
@@ -91,9 +109,6 @@ const PatientAdminList = () => {
             <h1>Quản lý Bệnh nhân</h1>
             <p>Theo dõi hồ sơ, lịch sử khám bệnh và thông tin chi tiết của bệnh nhân.</p>
           </div>
-          <button className="btn-premium btn-premium-primary">
-            <MdPersonAdd /> Thêm bệnh nhân mới
-          </button>
         </div>
       </header>
 
@@ -163,10 +178,10 @@ const PatientAdminList = () => {
                   <td className="spending-cell">{formatCurrency(p.totalSpent || 0)}</td>
                   <td style={{ textAlign: 'right' }}>
                     <div className="action-group">
-                      <button className="icon-btn-sm view" title="Xem hồ sơ">
+                      <button className="icon-btn-sm view" title="Xem hồ sơ" onClick={() => handleViewPatient(p)}>
                         <MdVisibility />
                       </button>
-                      <button className="icon-btn-sm edit" title="Sửa thông tin">
+                      <button className="icon-btn-sm edit" title="Sửa thông tin" onClick={() => handleEditPatient(p)}>
                         <MdEdit />
                       </button>
                       <button 
@@ -194,6 +209,18 @@ const PatientAdminList = () => {
           }}
         />
       </div>
+
+      <PatientViewModal
+        show={showViewModal}
+        onClose={() => setShowViewModal(false)}
+        patient={selectedPatientView}
+      />
+      <PatientEditModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        patient={selectedPatientEdit}
+        onSuccess={fetchPatients}
+      />
     </div>
   );
 };

@@ -42,6 +42,11 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // Không đánh chặn 401 nếu là request tới login hoặc change-password
+        if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/change-password')) {
+            return Promise.reject(error || new Error('API Response Error'));
+        }
+
         // Nếu lỗi 401 và chưa được thử lại (retry)
         if (error.response?.status === 401 && !originalRequest._retry) {
             

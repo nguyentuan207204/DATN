@@ -1,18 +1,33 @@
 import express from "express";
 import {
   getAllPatients,
+  getPatient,
   getHistory,
   getVisitHistory,
   getPrescriptionHistory,
   getTreatmentSummary,
   getFollowUps,
   getMedicationSchedule,
+  createPatient,
+  updatePatient,
+  deletePatient,
 } from "../controllers/patient.controller.js";
 
 const router = express.Router();
 
 router.get("/", getAllPatients);
 
+// Thêm bệnh nhân mới
+router.post("/", createPatient);
+
+// Lấy chi tiết bệnh nhân
+router.get("/:patientId", getPatient);
+
+// Cập nhật thông tin bệnh nhân
+router.put("/:patientId", updatePatient);
+
+// Xóa bệnh nhân
+router.delete("/:patientId", deletePatient);
 // Timeline quá trình điều trị tổng quát
 router.get(
   "/:patientId/history",

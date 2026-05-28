@@ -226,6 +226,13 @@ export const getCriticalMedicinesCount = async () => {
 ================================================== */
 export const createMedicine = async (data) => {
   const { official_code, name, category, unit, price, minStock, description, stock } = data;
+
+  // Validate price: must be a positive number greater than 0
+  const parsedPrice = Number(price);
+  if (data.price === undefined || isNaN(parsedPrice) || parsedPrice <= 0) {
+    throw new Error("vui lòng nhập giá lớn hơn 0");
+  }
+
   const conn = await pool.getConnection();
 
   try {
@@ -235,7 +242,7 @@ export const createMedicine = async (data) => {
     const [result] = await conn.query(
       `INSERT INTO Medicine (official_code, name, category, unit, price, minStock, description) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [official_code || null, name, category || null, unit || 'Viên', price || 0, minStock || 20, description || '']
+      [official_code || null, name, category || null, unit || 'Viên', parsedPrice, minStock || 20, description || '']
     );
 
     const medicineId = result.insertId;
@@ -263,6 +270,15 @@ export const createMedicine = async (data) => {
 ================================================== */
 export const updateMedicine = async (id, data) => {
   const { official_code, name, category, unit, price, minStock, description, stock } = data;
+
+  // Validate price if provided: must be a positive number greater than 0
+  if (price !== undefined) {
+    const parsedPrice = Number(price);
+    if (data.price === undefined || isNaN(parsedPrice) || parsedPrice <= 0) {
+      throw new Error("vui lòng nhập giá lớn hơn 0");
+    }
+  }
+
   const conn = await pool.getConnection();
 
   try {
@@ -273,7 +289,7 @@ export const updateMedicine = async (id, data) => {
       `UPDATE Medicine 
        SET official_code = ?, name = ?, category = ?, unit = ?, price = ?, minStock = ?, description = ?
        WHERE id = ?`,
-      [official_code || null, name, category || null, unit, price || 0, minStock || 20, description || '', id]
+      [official_code || null, name, category || null, unit, Number(price), minStock || 20, description || '', id]
     );
 
     if (result.affectedRows === 0) {

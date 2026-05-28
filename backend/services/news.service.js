@@ -17,3 +17,17 @@ export const createNews = async (data) => {
     );
     return { id: result.insertId };
 };
+
+export const updateNews = async (id, data) => {
+    await pool.query(
+        "UPDATE News SET title = ?, summary = ?, content = ?, image = ?, category = ?, author = ?, date = ?, featured = ? WHERE id = ?",
+        [data.title, data.summary, data.content, data.image, data.category, data.author, data.date, data.featured || 0, id]
+    );
+    return { id };
+};
+
+export const deleteNews = async (id) => {
+    await pool.query("DELETE FROM News WHERE id = ?", [id]);
+    return { id };
+};
+

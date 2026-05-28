@@ -93,14 +93,34 @@ const Booking = () => {
         fetchData();
     }, []);
 
+    const isPastTime = (timeStr) => {
+        if (!selectedDate || !timeStr) return false;
+        const today = new Date().toISOString().split('T')[0];
+        if (selectedDate > today) return false;
+        if (selectedDate < today) return true;
+        
+        const now = new Date();
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        const slotTime = new Date();
+        slotTime.setHours(hours, minutes, 0, 0);
+        
+        return slotTime <= now;
+    };
+
     const nextStep = () => {
         if (step === 1 && (!selectedService || !selectedDoctor)) {
             toast.warning("Vui lòng chọn dịch vụ và bác sĩ");
             return;
         }
-        if (step === 2 && (!selectedDate || !selectedTime)) {
-            toast.warning("Vui lòng chọn ngày và giờ khám");
-            return;
+        if (step === 2) {
+            if (!selectedDate || !selectedTime) {
+                toast.warning("Vui lòng chọn ngày và giờ khám");
+                return;
+            }
+            if (isPastTime(selectedTime)) {
+                toast.warning("Giờ khám này đã qua, vui lòng chọn giờ khác");
+                return;
+            }
         }
         setStep(step + 1);
     };
@@ -134,7 +154,7 @@ const Booking = () => {
 
             if (response.data.success || response.status === 201) {
                 toast.success("Đặt lịch khám thành công!");
-                navigate('/profile/history');
+                navigate('/profile/appointments');
             }
         } catch (error) {
             console.error("Booking error:", error);
@@ -324,27 +344,51 @@ const Booking = () => {
                                     <div className="time-slots-group">
                                         <h4 style={{ fontSize: '0.8rem', color: '#adb5bd', marginBottom: '1rem', textTransform: 'uppercase' }}>BUỔI SÁNG (08:00 - 11:30)</h4>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.5rem' }}>
-                                            {['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30'].map(t => (
-                                                <button
-                                                    key={t}
-                                                    onClick={() => setSelectedTime(t)}
-                                                    style={{ padding: '0.5rem', background: selectedTime === t ? '#0d6efd' : '#f8f9fa', color: selectedTime === t ? '#fff' : '#495057', border: `1px solid ${selectedTime === t ? '#0d6efd' : '#dee2e6'}`, borderRadius: '4px', cursor: 'pointer' }}
-                                                >
-                                                    {t}
-                                                </button>
-                                            ))}
+                                            {['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30'].map(t => {
+                                                const disabled = isPastTime(t);
+                                                return (
+                                                    <button
+                                                        key={t}
+                                                        onClick={() => !disabled && setSelectedTime(t)}
+                                                        disabled={disabled}
+                                                        style={{ 
+                                                            padding: '0.5rem', 
+                                                            background: selectedTime === t ? '#0d6efd' : disabled ? '#e9ecef' : '#f8f9fa', 
+                                                            color: selectedTime === t ? '#fff' : disabled ? '#adb5bd' : '#495057', 
+                                                            border: `1px solid ${selectedTime === t ? '#0d6efd' : '#dee2e6'}`, 
+                                                            borderRadius: '4px', 
+                                                            cursor: disabled ? 'not-allowed' : 'pointer',
+                                                            opacity: disabled ? 0.6 : 1
+                                                        }}
+                                                    >
+                                                        {t}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                         <h4 style={{ fontSize: '0.8rem', color: '#adb5bd', margin: '1.5rem 0 1rem', textTransform: 'uppercase' }}>BUỔI CHIỀU (13:30 - 17:00)</h4>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.5rem' }}>
-                                            {['13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'].map(t => (
-                                                <button
-                                                    key={t}
-                                                    onClick={() => setSelectedTime(t)}
-                                                    style={{ padding: '0.5rem', background: selectedTime === t ? '#0d6efd' : '#f8f9fa', color: selectedTime === t ? '#fff' : '#495057', border: `1px solid ${selectedTime === t ? '#0d6efd' : '#dee2e6'}`, borderRadius: '4px', cursor: 'pointer' }}
-                                                >
-                                                    {t}
-                                                </button>
-                                            ))}
+                                            {['13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'].map(t => {
+                                                const disabled = isPastTime(t);
+                                                return (
+                                                    <button
+                                                        key={t}
+                                                        onClick={() => !disabled && setSelectedTime(t)}
+                                                        disabled={disabled}
+                                                        style={{ 
+                                                            padding: '0.5rem', 
+                                                            background: selectedTime === t ? '#0d6efd' : disabled ? '#e9ecef' : '#f8f9fa', 
+                                                            color: selectedTime === t ? '#fff' : disabled ? '#adb5bd' : '#495057', 
+                                                            border: `1px solid ${selectedTime === t ? '#0d6efd' : '#dee2e6'}`, 
+                                                            borderRadius: '4px', 
+                                                            cursor: disabled ? 'not-allowed' : 'pointer',
+                                                            opacity: disabled ? 0.6 : 1
+                                                        }}
+                                                    >
+                                                        {t}
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>
