@@ -124,7 +124,7 @@ const NewsDetail = () => {
           <h1 className="nd-title">{article.title}</h1>
           <div className="nd-meta-row">
             <span className="nd-meta-item">
-              <FaUserEdit /> {article.author || 'Bắc Ninh Clinic'}
+              <FaUserEdit /> {article.author || 'Phòng khám đa khoa tỉnh Bắc Ninh'}
             </span>
             <span className="nd-meta-sep">·</span>
             <span className="nd-meta-item">

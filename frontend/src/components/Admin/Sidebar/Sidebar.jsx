@@ -54,7 +54,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <MdMedicalServices />
         </div>
         <div className="logo-text">
-          <h3>Bắc Ninh Clinic</h3>
+          <h3>Phòng khám đa khoa tỉnh Bắc Ninh</h3>
           <span>Hệ thống Quản trị</span>
         </div>
         <button className="mobile-close" onClick={toggleSidebar}>

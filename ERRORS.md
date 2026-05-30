@@ -31,3 +31,18 @@
 - **Fix Applied**: Bổ sung `connectionLimit=1` một cách tường minh vào cấu hình `mysql.createPool` trong `db.js`.
 - **Prevention**: Luôn set giới hạn kết nối cực thấp (1-2) khi kết nối Database truyền thống từ môi trường Serverless (Vercel, AWS Lambda) hoặc cấu hình Connection Pooling (PgBouncer, Prisma Accelerate) ở cấp middleware.
 - **Status**: Fixed
+
+## [2026-05-28 15:05] - Vercel Deploy 500 Error due to missing openapi.json
+
+- **Type**: Integration
+- **Severity**: High
+- **File**: `backend/app.js:41`
+- **Agent**: Antigravity
+- **Root Cause**: The `.gitignore` file had `docs/` which ignored the `backend/docs/` directory, preventing `openapi.json` from being pushed to GitHub. When Vercel ran `app.js`, it threw `ENOENT` on `readFileSync`.
+- **Error Message**: 
+  ```
+  Error: ENOENT: no such file or directory, open '/var/task/backend/docs/openapi.json'
+  ```
+- **Fix Applied**: Updated `.gitignore` from `docs/` to `/docs/` and added `backend/docs/openapi.json` to Git. Pushed the fix.
+- **Prevention**: Be mindful of broad `.gitignore` rules (like `docs/` without a leading slash) that can accidentally exclude important nested directories.
+- **Status**: Fixed
