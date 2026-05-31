@@ -81,6 +81,9 @@ const StaffList = () => {
     s.departmentName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Client-side pagination
+  const paginatedStaff = filteredStaff.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   const handleOpenModal = (member = null) => {
     if (member) {
       setCurrentStaff(member);
@@ -172,9 +175,9 @@ const StaffList = () => {
       <div className="staff-grid">
         {loading ? (
           <div className="loading-spinner">Đang tải dữ liệu...</div>
-        ) : filteredStaff.length === 0 ? (
+        ) : paginatedStaff.length === 0 ? (
           <div className="no-data">Không tìm thấy nhân sự nào.</div>
-        ) : filteredStaff.map(member => (
+        ) : paginatedStaff.map(member => (
           <div key={member.id} className="glass-card staff-card">
             <div className="card-top" style={{ justifyContent: 'flex-end' }}>
               <div className="card-actions-top">
@@ -213,7 +216,7 @@ const StaffList = () => {
       <div style={{ marginTop: '2rem' }}>
         <Pagination 
           currentPage={currentPage}
-          totalCount={totalCount}
+          totalCount={filteredStaff.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
           onPageSizeChange={(size) => {
