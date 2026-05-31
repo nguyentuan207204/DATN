@@ -182,7 +182,6 @@ const StaffList = () => {
               </div>
             </div>
             <div className="card-profile">
-              <img src={`https://i.pravatar.cc/150?u=${member.fullName}`} alt={member.fullName} className="staff-avatar" />
               <h3>{member.fullName}</h3>
               <span className="staff-role-badge">{member.roleName || member.role}</span>
             </div>
@@ -305,7 +304,6 @@ const StaffList = () => {
             </div>
             
             <div className="text-center mb-6">
-              <img src={`https://i.pravatar.cc/150?u=${viewingStaff.fullName}`} alt={viewingStaff.fullName} className="staff-avatar" style={{width: '120px', height: '120px', margin: '0 auto 16px auto', border: '5px solid white', boxShadow: '0 12px 32px rgba(13, 138, 188, 0.2)'}} />
               <h3 style={{ fontSize: '1.5rem', color: '#0f172a', fontWeight: '800' }}>{viewingStaff.fullName}</h3>
               <span className="staff-role-badge mt-2">{viewingStaff.roleName || viewingStaff.role}</span>
             </div>
