@@ -7,7 +7,6 @@ import {
   MdMedicalServices, 
   MdOutlinePostAdd, 
   MdBarChart, 
-  MdSettings,
   MdLogout,
   MdPeople,
   MdMedication,
@@ -76,13 +75,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       </nav>
 
       <div className="sidebar-footer">
-        <NavLink 
-          to="/admin/settings" 
-          className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-        >
-          <span className="icon"><MdSettings /></span>
-          <span className="label">Cài đặt</span>
-        </NavLink>
+
         
         <button className="nav-item btn-logout" onClick={handleLogout}>
           <span className="icon"><MdLogout /></span>
