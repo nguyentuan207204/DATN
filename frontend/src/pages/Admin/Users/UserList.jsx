@@ -26,7 +26,7 @@ const UserList = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
+  const [pageSize, setPageSize] = useState(6);
   const [totalCount, setTotalCount] = useState(0);
 
   // Modal states
@@ -118,6 +118,8 @@ const UserList = () => {
     return matchesSearch && matchesRole;
   });
 
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <div className="admin-page-container user-management-premium">
       <header className="admin-header">
@@ -169,9 +171,9 @@ const UserList = () => {
             <tbody>
               {loading ? (
                 <tr><td colSpan="5" className="text-center py-4">Đang tải dữ liệu...</td></tr>
-              ) : filteredUsers.length === 0 ? (
+              ) : paginatedUsers.length === 0 ? (
                 <tr><td colSpan="5" className="text-center py-4">Không tìm thấy tài khoản nào</td></tr>
-              ) : filteredUsers.map(u => (
+              ) : paginatedUsers.map(u => (
                 <tr key={u.id} className={u.isLocked ? 'row-locked' : ''}>
                   <td>
                     <div className="user-profile-cell">
@@ -226,7 +228,7 @@ const UserList = () => {
         </div>
         <Pagination 
           currentPage={currentPage}
-          totalCount={totalCount}
+          totalCount={filteredUsers.length}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
           onPageSizeChange={(size) => {
