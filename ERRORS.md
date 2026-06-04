@@ -61,3 +61,16 @@
   2. Thay thế `Promise.all` bằng gọi API tuần tự (`await`) tại tất cả các trang frontend có tải nhiều API đồng thời nhằm đảm bảo Vercel xử lý tuần tự và không spawn nhiều container tạo kết nối database cùng một lúc.
 - **Prevention**: Tránh sử dụng `Promise.all` để fetch dữ liệu từ các API kết nối database trực tiếp trên môi trường Serverless có cấu hình kết nối DB giới hạn rất thấp. Nên gọi tuần tự hoặc thiết kế gộp API (API composition) ở backend.
 - **Status**: Fixed
+
+---
+
+## [2026-06-04 21:45] - Register Appointment 500 Error for Non-Patient Accounts
+
+- **Type**: Runtime
+- **Severity**: Low
+- **File**: `backend/controllers/appointment.controller.js`
+- **Agent**: Antigravity
+- **Root Cause**: Khi tài khoản không phải bệnh nhân (như ADMIN hoặc STAFF) cố gắng đăng ký khám, hệ thống không tìm thấy `patientId` liên kết. Backend ném một Generic Error nhưng không có mã lỗi (status code) HTTP, làm Express mặc định trả về lỗi 500 (Internal Server Error) gây hiểu nhầm hệ thống bị sập.
+- **Fix Applied**: Gán mã lỗi `status = 400` cho đối tượng Error trong hàm `getPatientId` của [appointment.controller.js](file:///Users/chichi/Desktop/yte/web/DATN/backend/controllers/appointment.controller.js) và trả về thông báo lỗi hướng dẫn đăng nhập đúng loại tài khoản Bệnh nhân.
+- **Prevention**: Luôn gán status code HTTP cho các lỗi nghiệp vụ (như không đủ quyền hạn, sai loại tài khoản) để API trả về lỗi 4xx thay vì lỗi 5xx mặc định.
+- **Status**: Fixed
