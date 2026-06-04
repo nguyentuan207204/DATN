@@ -19,7 +19,7 @@ const pool = mysql.createPool({
     dateStrings: ['DATE', 'DATETIME'],
     connectionLimit: 1,
     maxIdle: 0, // Không giữ connection nhàn rỗi (tránh bị treo trên Serverless)
-    idleTimeout: 3000, // Đóng connection sau 3s nếu nhàn rỗi
+    idleTimeout: 1000, // Đóng connection sau 1s nếu nhàn rỗi (giải phóng cực nhanh)
     waitForConnections: true,
     queueLimit: 0,
 });

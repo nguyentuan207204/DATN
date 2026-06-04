@@ -25,10 +25,8 @@ const DoctorsList = () => {
         const fetchAll = async () => {
             try {
                 setLoading(true);
-                const [docRes, nurseRes] = await Promise.all([
-                    api.get('/staff/doctors'),
-                    api.get('/staff/nurses'),
-                ]);
+                const docRes = await api.get('/staff/doctors');
+                const nurseRes = await api.get('/staff/nurses');
                 setDoctors(docRes.data.data || []);
                 setNurses(nurseRes.data.data || []);
             } catch (err) {

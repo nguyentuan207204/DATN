@@ -23,10 +23,8 @@ const Services = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [servicesRes, categoriesRes] = await Promise.all([
-                    api.get('/medical-services'),
-                    api.get('/medical-services/categories')
-                ]);
+                const servicesRes = await api.get('/medical-services');
+                const categoriesRes = await api.get('/medical-services/categories');
                 setServices(servicesRes.data.data || []);
                 setCategories(categoriesRes.data.data || []);
             } catch (err) {

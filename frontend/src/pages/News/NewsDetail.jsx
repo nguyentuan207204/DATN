@@ -30,10 +30,8 @@ const NewsDetail = () => {
       try {
         setLoading(true);
         window.scrollTo(0, 0);
-        const [resOne, resAll] = await Promise.all([
-          api.get(`/news/${id}`),
-          api.get('/news')
-        ]);
+        const resOne = await api.get(`/news/${id}`);
+        const resAll = await api.get('/news');
         if (resOne.data.success) {
           setArticle(resOne.data.data);
         }

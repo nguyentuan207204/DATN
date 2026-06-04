@@ -48,11 +48,9 @@ const ServiceManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [resServices, resCategories, resDepts] = await Promise.all([
-        api.get('/medical-services', { params: { page: currentPage, pageSize } }),
-        api.get('/medical-services/categories'),
-        api.get('/departments')
-      ]);
+      const resServices = await api.get('/medical-services', { params: { page: currentPage, pageSize } });
+      const resCategories = await api.get('/medical-services/categories');
+      const resDepts = await api.get('/departments');
       
       if (resServices.data.success) {
         setServices(resServices.data.data);

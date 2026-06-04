@@ -45,11 +45,10 @@ const Booking = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [servRes, docRes, deptRes] = await Promise.all([
-                    api.get('/medical-services'),
-                    api.get('/staff/doctors'),
-                    api.get('/departments')
-                ]);
+                const servRes = await api.get('/medical-services');
+                const docRes = await api.get('/staff/doctors');
+                const deptRes = await api.get('/departments');
+                
                 setServices(servRes.data.data || []);
                 setDoctors(docRes.data.data || []);
                 setDepartments(deptRes.data.data || []);

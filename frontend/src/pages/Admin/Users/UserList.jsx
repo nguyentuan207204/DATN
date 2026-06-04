@@ -37,10 +37,8 @@ const UserList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [resUsers, resRoles] = await Promise.all([
-        api.get(`/users?page=${currentPage}&pageSize=${pageSize}`), 
-        api.get('/roles')
-      ]);
+      const resUsers = await api.get(`/users?page=${currentPage}&pageSize=${pageSize}`);
+      const resRoles = await api.get('/roles');
       if (resUsers.data.success) {
         setUsers(resUsers.data.data);
         setTotalCount(resUsers.data.total || resUsers.data.data.length);

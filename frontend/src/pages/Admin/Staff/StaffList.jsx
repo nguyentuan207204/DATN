@@ -49,10 +49,8 @@ const StaffList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [resStaff, resDeps] = await Promise.all([
-        api.get(`/staff?page=${currentPage}&pageSize=${pageSize}`),
-        api.get('/departments')
-      ]);
+      const resStaff = await api.get(`/staff?page=${currentPage}&pageSize=${pageSize}`);
+      const resDeps = await api.get('/departments');
       
       if (resStaff.data.success) {
         setStaff(resStaff.data.data);

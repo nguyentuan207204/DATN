@@ -38,10 +38,8 @@ const InvoiceAdminList = () => {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const [resList, resStats] = await Promise.all([
-        api.get('/billing/invoices', { params: { page: currentPage, pageSize, from: fromDate, to: toDate } }),
-        api.get('/billing/admin-stats')
-      ]);
+      const resList = await api.get('/billing/invoices', { params: { page: currentPage, pageSize, from: fromDate, to: toDate } });
+      const resStats = await api.get('/billing/admin-stats');
 
       if (resList.data.success) {
         setInvoices(resList.data.data);
