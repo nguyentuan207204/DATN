@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
+import QRPaymentModal from '../../components/Admin/QRPaymentModal/QRPaymentModal';
 import './MedicalHistoryList.css';
 
 const MedicalHistoryList = () => {
@@ -14,21 +15,24 @@ const MedicalHistoryList = () => {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [qrModal, setQrModal] = useState({ open: false, invoiceId: null });
+
+    const fetchHistory = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get('/medical/history');
+            if (response.data.success) {
+                setHistory(response.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching medical history:", error);
+            toast.error("Không thể tải lịch sử khám bệnh");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchHistory = async () => {
-            try {
-                const response = await api.get('/medical/history');
-                if (response.data.success) {
-                    setHistory(response.data.data);
-                }
-            } catch (error) {
-                console.error("Error fetching medical history:", error);
-                toast.error("Không thể tải lịch sử khám bệnh");
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchHistory();
     }, []);
 
@@ -121,7 +125,7 @@ const MedicalHistoryList = () => {
                             <div>Ngày thăm khám</div>
                             <div>Bác sĩ phụ trách</div>
                             <div>Kết luận chẩn đoán</div>
-                            <div style={{ textAlign: 'center' }}>Trạng thái</div>
+                            <div style={{ textAlign: 'center' }}>Thanh toán viện phí</div>
                             <div style={{ textAlign: 'right' }}>Thao tác</div>
                         </div>
 
@@ -143,7 +147,7 @@ const MedicalHistoryList = () => {
                                     </div>
                                     <div className="doctor-info">
                                         <span className="doctor-name">{item.doctorName}</span>
-                                        <span className="doctor-dept">Chuyên khoa Nội</span>
+                                        <span className="doctor-dept">Chuyên khoa khám</span>
                                     </div>
                                 </div>
                                 
@@ -151,16 +155,44 @@ const MedicalHistoryList = () => {
                                     {item.diagnoses || "Đang chờ cập nhật..."}
                                 </div>
                                 
-                                <div className="col-status">
-                                    <div className="status-check" title="Đã hoàn tất đợt khám">
-                                        <FaCheck />
-                                    </div>
+                                <div className="col-status" onClick={(e) => e.stopPropagation()}>
+                                    {item.invoiceId ? (
+                                        item.invoiceStatus === 'PAID' ? (
+                                            <span className="badge-payment paid" title="Đã thanh toán viện phí">
+                                                Đã thanh toán ({Number(item.invoiceTotal).toLocaleString('vi-VN')} đ)
+                                            </span>
+                                        ) : item.invoiceStatus === 'UNPAID' ? (
+                                            <span className="badge-payment unpaid" title="Chưa thanh toán viện phí">
+                                                Chưa thanh toán ({Number(item.invoiceTotal).toLocaleString('vi-VN')} đ)
+                                            </span>
+                                        ) : (
+                                            <span className="badge-payment cancelled">
+                                                Đã hủy
+                                            </span>
+                                        )
+                                    ) : (
+                                        <span className="badge-payment no-invoice">
+                                            Không có HĐ
+                                        </span>
+                                    )}
                                 </div>
                                 
-                                <div className="col-action">
-                                    <div className="btn-quick-view">
-                                        <FaPlus />
-                                    </div>
+                                <div className="col-action" onClick={(e) => e.stopPropagation()}>
+                                    {item.invoiceId && item.invoiceStatus === 'UNPAID' ? (
+                                        <button 
+                                            className="btn-pay-qr-history"
+                                            onClick={() => setQrModal({ open: true, invoiceId: item.invoiceId })}
+                                        >
+                                            Thanh toán QR
+                                        </button>
+                                    ) : (
+                                        <div 
+                                            className="btn-quick-view"
+                                            onClick={() => navigate(`/profile/history/${item.id}`)}
+                                        >
+                                            <FaPlus />
+                                        </div>
+                                    )}
                                 </div>
                             </article>
                         ))}
@@ -176,6 +208,15 @@ const MedicalHistoryList = () => {
                     </section>
                 )}
             </main>
+
+            {qrModal.open && (
+                <QRPaymentModal 
+                    invoiceId={qrModal.invoiceId}
+                    patientName="Bệnh nhân"
+                    onClose={() => setQrModal({ open: false, invoiceId: null })}
+                    onSuccess={fetchHistory}
+                />
+            )}
         </div>
     );
 };

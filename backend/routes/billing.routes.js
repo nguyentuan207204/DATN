@@ -28,7 +28,7 @@ router.get("/admin-stats", controller.getBillingAdminStats);
 router.get(
   "/invoices/:id/qr",
   authenticate,
-  authorize(["ADMIN"]),
+  authorize(["ADMIN", "PATIENT"]),
   controller.getQRPayment
 );
 
@@ -36,7 +36,7 @@ router.get(
 router.post(
   "/invoices/:id/payments",
   authenticate,
-  authorize(["ADMIN"]),
+  authorize(["ADMIN", "PATIENT"]),
   controller.payInvoice
 );
 

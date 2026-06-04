@@ -205,9 +205,13 @@ export const getHistoryByPatient = async (patientId) => {
         (SELECT GROUP_CONCAT(i.name SEPARATOR ', ') 
          FROM Diagnosis d 
          JOIN ICD10 i ON d.icd10Id = i.id 
-         WHERE d.recordId = mr.id) AS diagnoses
+         WHERE d.recordId = mr.id) AS diagnoses,
+        inv.id AS invoiceId,
+        inv.status AS invoiceStatus,
+        inv.totalAmount AS invoiceTotal
       FROM MedicalRecord mr
       JOIN Staff s ON mr.doctorId = s.id
+      LEFT JOIN Invoice inv ON mr.id = inv.recordId
       WHERE mr.patientId = ?
       ORDER BY mr.visitDate DESC`,
       [patientId]
