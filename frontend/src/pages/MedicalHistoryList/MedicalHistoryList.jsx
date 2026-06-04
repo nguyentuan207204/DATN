@@ -172,7 +172,7 @@ const MedicalHistoryList = () => {
                                         )
                                     ) : (
                                         <span className="badge-payment no-invoice">
-                                            Không có HĐ
+                                            Chưa có hóa đơn
                                         </span>
                                     )}
                                 </div>
