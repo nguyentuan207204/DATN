@@ -7,7 +7,9 @@ import pool from "../config/db.js";
 const getPatientId = async (userId) => {
     const user = await findUserById(userId);
     if (!user || !user.patientId) {
-        throw new Error("Không tìm thấy thông tin bệnh nhân liên kết với tài khoản này");
+        const error = new Error("Tài khoản của bạn không liên kết với hồ sơ Bệnh nhân. Vui lòng đăng nhập bằng tài khoản Bệnh nhân để thực hiện đặt lịch khám.");
+        error.status = 400;
+        throw error;
     }
     return user.patientId;
 };
