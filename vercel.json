@@ -10,11 +10,14 @@
           "backend/docs/**",
           "backend/uploads/**",
           "backend/routes/**",
+          "backend/routers/**",
           "backend/controllers/**",
           "backend/middleware/**",
           "backend/models/**",
           "backend/services/**",
-          "backend/config/**"
+          "backend/config/**",
+          "backend/utils/**",
+          "backend/validators/**"
         ]
       }
     },

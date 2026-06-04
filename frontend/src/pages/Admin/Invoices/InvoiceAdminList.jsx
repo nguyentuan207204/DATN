@@ -7,12 +7,14 @@ import {
   MdPayments, 
   MdBarChart,
   MdVisibility,
-  MdPrint
+  MdPrint,
+  MdQrCode2
 } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/Admin/Pagination/Pagination';
+import QRPaymentModal from '../../../components/Admin/QRPaymentModal/QRPaymentModal';
 import '../../../styles/AdminPremium.css';
 import './InvoiceAdminList.css';
 
@@ -24,6 +26,9 @@ const InvoiceAdminList = () => {
   const [stats, setStats] = useState({ todayRevenue: 0, totalUnpaid: 0 });
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+
+  // QR Modal state
+  const [qrModal, setQrModal] = useState({ open: false, invoiceId: null, patientName: '' });
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -156,6 +161,15 @@ const InvoiceAdminList = () => {
                     <div className="action-group">
                       <button className="icon-btn-sm" title="Chi tiết"><MdVisibility /></button>
                       <button className="icon-btn-sm" title="In"><MdPrint /></button>
+                      {inv.status === 'UNPAID' && (
+                        <button
+                          className="icon-btn-sm icon-btn-qr"
+                          title="Thanh toán QR"
+                          onClick={() => setQrModal({ open: true, invoiceId: inv.id, patientName: inv.patientName })}
+                        >
+                          <MdQrCode2 />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -174,6 +188,16 @@ const InvoiceAdminList = () => {
           }}
         />
       </div>
+
+      {/* QR Payment Modal */}
+      {qrModal.open && (
+        <QRPaymentModal
+          invoiceId={qrModal.invoiceId}
+          patientName={qrModal.patientName}
+          onClose={() => setQrModal({ open: false, invoiceId: null, patientName: '' })}
+          onSuccess={() => fetchInvoices()}
+        />
+      )}
     </div>
   );
 };

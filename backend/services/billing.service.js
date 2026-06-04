@@ -381,3 +381,41 @@ export const getAdminStats = async () => {
     };
 };
 
+export const generateQRPayment = async (invoiceId) => {
+  // Get invoice detail to calculate remaining amount
+  const detail = await getInvoiceDetail(invoiceId);
+  const { invoice, remainingAmount } = detail;
+
+  if (invoice.status === 'PAID') {
+    throw new Error('Hóa đơn đã được thanh toán');
+  }
+
+  if (remainingAmount <= 0) {
+    throw new Error('Hóa đơn không còn số tiền cần thanh toán');
+  }
+
+  const bin = process.env.BANK_BIN;
+  const accountNo = process.env.BANK_ACCOUNT_NUMBER;
+  const accountName = process.env.BANK_ACCOUNT_NAME || '';
+
+  if (!bin || !accountNo) {
+    throw new Error('Chưa cấu hình thông tin ngân hàng trong ENV');
+  }
+
+  // Build VietQR static URL (no registration required)
+  const addInfo = encodeURIComponent(`Thanh toan HD-${invoiceId}`);
+  const encodedName = encodeURIComponent(accountName);
+  const qrUrl = `https://img.vietqr.io/image/${bin}-${accountNo}-compact2.png?amount=${remainingAmount}&addInfo=${addInfo}&accountName=${encodedName}`;
+
+  return {
+    invoiceId,
+    qrUrl,
+    amount: remainingAmount,
+    accountNo,
+    accountName,
+    bankBin: bin,
+    invoiceStatus: invoice.status,
+  };
+};
+
+

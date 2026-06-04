@@ -24,6 +24,14 @@ router.get("/invoices", controller.listInvoices);
 // 3.1 Thống kê admin
 router.get("/admin-stats", controller.getBillingAdminStats);
 
+// 3.2 Tạo QR thanh toán cho hóa đơn
+router.get(
+  "/invoices/:id/qr",
+  authenticate,
+  authorize(["ADMIN"]),
+  controller.getQRPayment
+);
+
 // 4. Thanh toán hóa đơn (thu tiền bệnh nhân)
 router.post(
   "/invoices/:id/payments",

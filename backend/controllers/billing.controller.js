@@ -7,6 +7,7 @@ import {
   applyInsurancePayment,
   getRevenueReport,
   getAdminStats,
+  generateQRPayment,
 } from "../services/billing.service.js";
 
 export const createInvoiceAuto = async (req, res, next) => {
@@ -175,6 +176,28 @@ export const revenueReport = async (req, res, next) => {
     return res.json({
       success: true,
       data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getQRPayment = async (req, res, next) => {
+  try {
+    const invoiceId = Number(req.params.id);
+
+    if (!invoiceId) {
+      return res.status(400).json({
+        success: false,
+        message: "invoiceId không hợp lệ",
+      });
+    }
+
+    const result = await generateQRPayment(invoiceId);
+
+    return res.json({
+      success: true,
+      data: result,
     });
   } catch (error) {
     next(error);
