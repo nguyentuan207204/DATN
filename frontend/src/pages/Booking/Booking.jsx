@@ -169,15 +169,15 @@ const Booking = () => {
 
     const filteredDoctors = doctors.filter(d => {
         const matchDept = filterDept === 'All' || d.departmentId === parseInt(filterDept);
-        // If a service is selected, filter by its associated departmentId
-        const matchService = !selectedService || d.departmentId === selectedService.departmentId;
+        // If a service is selected and has a departmentId, filter by it
+        const matchService = !selectedService || !selectedService.departmentId || d.departmentId === selectedService.departmentId;
         return matchDept && matchService;
     });
 
     const handleServiceSelect = (service) => {
         setSelectedService(service);
-        // If the current selected doctor doesn't match the new service's department, clear selection
-        if (selectedDoctor && selectedDoctor.departmentId !== service.departmentId) {
+        // If the current selected doctor doesn't match the new service's department (only if service has departmentId), clear selection
+        if (selectedDoctor && service.departmentId && selectedDoctor.departmentId !== service.departmentId) {
             setSelectedDoctor(null);
         }
     };
