@@ -9,7 +9,9 @@ import pool from "../config/db.js";
 const getPatientId = async (userId) => {
     const user = await findUserById(userId);
     if (!user || !user.patientId) {
-        throw new Error("Không tìm thấy thông tin bệnh nhân liên kết với tài khoản này");
+        const err = new Error("Tài khoản này không liên kết với hồ sơ bệnh nhân");
+        err.status = 404;
+        throw err;
     }
     return user.patientId;
 };
