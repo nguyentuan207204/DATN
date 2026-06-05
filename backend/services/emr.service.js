@@ -49,10 +49,84 @@ export const createMedicalRecord = async (data) => {
       ]
     );
 
+    // 4. Find the patient's appointment to auto-create invoice & mark as DONE
+    const recordId = result.insertId;
+
+    // Priority 1: Appointment today with this doctor, not CANCELLED or DONE
+    let [appointments] = await conn.query(
+      `SELECT id, serviceId FROM Appointment 
+       WHERE patientId = ? AND doctorId = ? AND status NOT IN ('CANCELLED', 'DONE') AND DATE(date) = CURDATE()
+       ORDER BY createdAt DESC LIMIT 1`,
+      [data.patientId, data.doctorId]
+    );
+
+    let appointment = appointments[0];
+
+    if (!appointment) {
+      // Priority 2: Any appointment today for this patient, not CANCELLED or DONE
+      const [anyAppointments] = await conn.query(
+        `SELECT id, serviceId FROM Appointment 
+         WHERE patientId = ? AND status NOT IN ('CANCELLED', 'DONE') AND DATE(date) = CURDATE()
+         ORDER BY createdAt DESC LIMIT 1`,
+        [data.patientId]
+      );
+      appointment = anyAppointments[0];
+    }
+
+    if (!appointment) {
+      // Priority 3: Any closest incomplete appointment
+      const [anytimeAppointments] = await conn.query(
+        `SELECT id, serviceId FROM Appointment 
+         WHERE patientId = ? AND status NOT IN ('CANCELLED', 'DONE')
+         ORDER BY ABS(DATEDIFF(date, NOW())) ASC LIMIT 1`,
+        [data.patientId]
+      );
+      appointment = anytimeAppointments[0];
+    }
+
+    if (appointment) {
+      const appointmentId = appointment.id;
+      const serviceId = appointment.serviceId;
+
+      // Update appointment status to DONE
+      await conn.query(
+        `UPDATE Appointment SET status = 'DONE' WHERE id = ?`,
+        [appointmentId]
+      );
+
+      // Create invoice automatically if serviceId is available
+      if (serviceId) {
+        const [services] = await conn.query(
+          `SELECT price FROM Service WHERE id = ?`,
+          [serviceId]
+        );
+
+        if (services.length > 0) {
+          const servicePrice = services[0].price;
+
+          // Insert into Invoice
+          const [invoiceResult] = await conn.query(
+            `INSERT INTO Invoice (patientId, recordId, status, createdAt)
+             VALUES (?, ?, 'UNPAID', NOW())`,
+            [data.patientId, recordId]
+          );
+
+          const invoiceId = invoiceResult.insertId;
+
+          // Insert into InvoiceItem
+          await conn.query(
+            `INSERT INTO InvoiceItem (invoiceId, serviceId, quantity, price)
+             VALUES (?, ?, 1, ?)`,
+            [invoiceId, serviceId, servicePrice]
+          );
+        }
+      }
+    }
+
     await conn.commit();
 
     return {
-      recordId: result.insertId,
+      recordId,
     };
 
   } catch (err) {
@@ -208,7 +282,7 @@ export const getHistoryByPatient = async (patientId) => {
          WHERE d.recordId = mr.id) AS diagnoses,
         inv.id AS invoiceId,
         inv.status AS invoiceStatus,
-        inv.totalAmount AS invoiceTotal
+        COALESCE((SELECT SUM(price * quantity) FROM InvoiceItem WHERE invoiceId = inv.id), 0) AS invoiceTotal
       FROM MedicalRecord mr
       JOIN Staff s ON mr.doctorId = s.id
       LEFT JOIN Invoice inv ON mr.id = inv.recordId
@@ -226,6 +300,37 @@ export const getHistoryByPatient = async (patientId) => {
    4️⃣ LẤY CHI TIẾT HỒ SƠ BỆNH ÁN
 ===================================================== */
 export const getMedicalRecordDetail = async (recordId) => {
+  let actualRecordId = recordId;
+
+  // Check if the recordId exists in MedicalRecord table
+  const [checkRecord] = await pool.query(
+    `SELECT id FROM MedicalRecord WHERE id = ?`,
+    [recordId]
+  );
+
+  if (checkRecord.length === 0) {
+    // If not found in MedicalRecord, it might be an Appointment ID sent from frontend
+    const [appointments] = await pool.query(
+      `SELECT patientId, date FROM Appointment WHERE id = ?`,
+      [recordId]
+    );
+
+    if (appointments.length > 0) {
+      const appt = appointments[0];
+      // Find the closest medical record for this patient near the appointment date
+      const [records] = await pool.query(
+        `SELECT id FROM MedicalRecord 
+         WHERE patientId = ?
+         ORDER BY ABS(TIMESTAMPDIFF(MINUTE, visitDate, ?)) ASC, id DESC 
+         LIMIT 1`,
+        [appt.patientId, appt.date]
+      );
+
+      if (records.length > 0) {
+        actualRecordId = records[0].id;
+      }
+    }
+  }
 
   // 1. Lấy thông tin hồ sơ chính
   const [record] = await pool.query(
@@ -249,7 +354,7 @@ export const getMedicalRecordDetail = async (recordId) => {
     LEFT JOIN Department dept ON s.departmentId = dept.id
     WHERE mr.id = ?
     `,
-    [recordId]
+    [actualRecordId]
   );
 
   if (record.length === 0) {
@@ -264,7 +369,7 @@ export const getMedicalRecordDetail = async (recordId) => {
     JOIN ICD10 i ON d.icd10Id = i.id
     WHERE d.recordId = ?
     `,
-    [recordId]
+    [actualRecordId]
   );
 
   // 3. Lấy danh sách thuốc (Prescription)
@@ -276,13 +381,13 @@ export const getMedicalRecordDetail = async (recordId) => {
     JOIN Medicine m ON pi.medicineId = m.id
     WHERE p.recordId = ?
     `,
-    [recordId]
+    [actualRecordId]
   );
 
   // 4. Lấy thông tin hóa đơn (Invoice)
   const [invoices] = await pool.query(
     `SELECT id, totalAmount, status, createdAt FROM Invoice WHERE recordId = ?`,
-    [recordId]
+    [actualRecordId]
   );
 
   let invoice = null;
